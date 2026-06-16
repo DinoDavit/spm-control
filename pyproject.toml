@@ -1,0 +1,65 @@
+[project]
+name = "spm-control"
+version = "0.1.0"
+description = "Single-particle microscopy control workbench"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+hardware = [
+    "pipython",
+]
+
+analysis = [
+    "diptest",
+    "pillow",
+]
+
+detection = [
+    "opencv-python",
+    "scikit-image",
+    "ultralytics",
+]
+
+tttr = [
+    "tttrlib",
+]
+
+email = [
+    "google-api-python-client",
+    "google-auth",
+    "google-auth-oauthlib",
+]
+
+all = [
+    "pytest",
+    "pipython",
+    "diptest",
+    "pillow",
+    "opencv-python",
+    "scikit-image",
+    "ultralytics",
+    "tttrlib",
+    "google-api-python-client",
+    "google-auth",
+    "google-auth-oauthlib",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["spm_control*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
