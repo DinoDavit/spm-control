@@ -1,0 +1,13 @@
+scan:
+  z_focus: 11.5
+  xlim: [30, 70]
+  ylim: [20, 60]
+  resolution: 0.5
+  show_plot: true
+  intensity_histograms: false
+
+  limit_plot: true
+  vmin: 200
+  vmax: 200000
+  
+  folder_path: "C:/Users/spmno/OneDrive/Documents/spm/Scan/Scan Data"
