@@ -1,0 +1,5 @@
+stage:
+  controller_name: "E-727"
+  serialnum: "0120036309"
+  stage_model: "P-517.3CD"
+  num_axes: 3
