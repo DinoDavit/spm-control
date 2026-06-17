@@ -1,8 +1,8 @@
 stage:
-  controller_name: "E-727"
-  serial_num: "0120036309"
-  stage_model: "P-517.3CD"
-  num_axes: 3
+  CONTROLLER_NAME: "E-727"
+  SERIAL_NUM: "0120036309"
+  STAGE_MODEL: "P-517.3CD"
+  NUM_AXES: 3
 
 piezo_motion:
   major_axis_wait: 0.2 #s
@@ -17,4 +17,9 @@ hydraharp:
   sync:
     syncDivider: 1 # (unitless) count evert nth pulse
     syncCFDlevel: 50 # (mv) voltage threshold to recognize sync pulse
-    syncCFDZeroCross: 10 # (mv) const fraction discriminator, 
+    syncCFDZeroCross: 10 # (mv) const fraction discriminator
+    
+
+    # CFD helps record the timing at which voltages were recieved 
+    # by comparing them to itself while also splitting/treating the voltage.
+    # This reduces timing bias from pulse height differences.
