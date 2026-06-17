@@ -13,6 +13,8 @@ from hydraharp_intensities2 import HH400_Histo_Manager
 import scan_plot_and_analysis as spa
 import auto_emailer as emailer
 
+from pathlib import Path
+import yaml
 
 # Moving to (38.8, 37.3, 0)...
 # Max intensity z positions (Sum, CH1, CH2): 10.099177, 11.599177, 10.399177
@@ -27,6 +29,21 @@ import auto_emailer as emailer
 # xlim = (point[0]-change, point[0] +change) # µm
 # ylim = (point[1]-change, point[1]+change) # µm
 
+def load_scan_config(path="config_files/scan.yaml"):
+    with open(path, "r") as file:
+        config = yaml.safe_load(file)
+
+    return config["scan"]
+
+def load_hardware_config(path="config_files/hardware.yaml"):
+    with open(path, "r") as file:
+        config = yaml.safe_load(file)
+
+    return config["hardware"]
+
+scan_config = load_scan_config()
+hardware_config = load_hardware_config()
+
 def get_exp_num(folder_path, suff):
     """Input a folder_path and a suffix attatched to the end of the file before the number, it will find the latest txt file of that format"""
     most_recent = 0
@@ -37,10 +54,10 @@ def get_exp_num(folder_path, suff):
             most_recent = max(int(num), most_recent)
     return most_recent + 1
 
-z_focus = 11.5 # µm (0 - 20)
-xlim = (30, 70) # µm (0 - 100)
-ylim = (20, 60) # µm (0 - 100)
-resolution = .5 # um (>= 0.2) diffraction limit ~200 nm (.2)
+z_focus = scan_config["z_focus"] # µm (0 - 20)
+xlim = scan_config["xlim"] # µm (0 - 100)
+ylim = scan_config["ylim"] # µm (0 - 100)
+resolution = scan_config["resolution"] # um (>= 0.2) diffraction limit ~200 nm (.2)
 SPAD_Warning_Thresh = 10**6
 
 #    THESE ARE ONLY PARAMETERS YOU NEED TO CHANGE
@@ -56,12 +73,13 @@ show_plot = True
 intensity_histograms=False
 show_scan_stats = True
 require_user_input = False
-vmin, vmax = 2000, 200000
+if scan_config["limit_plot"]:
+    vmin, vmax = scan_config["vmin"], scan_config["vmax"]
 # naming convention
 
 today = datetime.today().strftime('%Y-%m-%d')
 print(today)
-folder_path = r'C:\Users\spmno\OneDrive\Documents\spm\Scan\Scan Data\{}'.format(today)
+folder_path = Path(scan_config["folder_path"]) / today
 if not os.path.isdir(folder_path):
     os.mkdir(folder_path)
 
@@ -75,11 +93,12 @@ experiment_title = 'pq{}'.format(exp_num)
 scan_name = '{}_{}'.format(today, experiment_title) 
 
 # Specify controller and the stages to be connected to this controller.
-CONTROLLERNAME = 'E-727'
-STAGES = ['P-517.3CD', 'P-517.3CD', 'P-517.3CD'] # connect stages to axes
+CONTROLLER_NAME = hardware_config["CONTROLLER_NAME"]
+STAGES =  hardware_config["STAGE_MODEL"] * hardware_config["NUM_AXES"]
+# connect stages to axes across # of dimensions 
+
 max_intensity0 = 0
 max_intensity1 = 0
-
 
 def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, predelay=0, autozero=False, send_email=False):
     """Connect, setup system and move stages and display the positions in a loop."""
@@ -106,7 +125,7 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
     #input('Press Enter to continue...')
 
 
-    with GCSDevice(CONTROLLERNAME) as pidevice, HH400_Histo_Manager(mode=0,send_error_email = send_email) as HH400, open(save_file, 'w') as scan_data_file:
+    with GCSDevice(CONTROLLER_NAME) as pidevice, HH400_Histo_Manager(mode=0,send_error_email = send_email) as HH400, open(save_file, 'w') as scan_data_file:
         ########## Connect to and Initialize Piezo ##########
         pidevice.ConnectUSB(serialnum='0120036309')
         pitools.startup(pidevice, stages=STAGES, refmodes=None)
