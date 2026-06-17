@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: spm-control
+Version: 0.1.0
+Summary: Single-particle microscopy control workbench
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: pyyaml
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Provides-Extra: hardware
+Requires-Dist: pipython; extra == "hardware"
+Provides-Extra: analysis
+Requires-Dist: diptest; extra == "analysis"
+Requires-Dist: pillow; extra == "analysis"
+Provides-Extra: detection
+Requires-Dist: opencv-python; extra == "detection"
+Requires-Dist: scikit-image; extra == "detection"
+Requires-Dist: ultralytics; extra == "detection"
+Provides-Extra: tttr
+Requires-Dist: tttrlib; extra == "tttr"
+Provides-Extra: email
+Requires-Dist: google-api-python-client; extra == "email"
+Requires-Dist: google-auth; extra == "email"
+Requires-Dist: google-auth-oauthlib; extra == "email"
+Provides-Extra: all
+Requires-Dist: pytest; extra == "all"
+Requires-Dist: pipython; extra == "all"
+Requires-Dist: diptest; extra == "all"
+Requires-Dist: pillow; extra == "all"
+Requires-Dist: opencv-python; extra == "all"
+Requires-Dist: scikit-image; extra == "all"
+Requires-Dist: ultralytics; extra == "all"
+Requires-Dist: tttrlib; extra == "all"
+Requires-Dist: google-api-python-client; extra == "all"
+Requires-Dist: google-auth; extra == "all"
+Requires-Dist: google-auth-oauthlib; extra == "all"
