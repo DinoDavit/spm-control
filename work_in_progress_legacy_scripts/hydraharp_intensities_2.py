@@ -6,9 +6,12 @@ import sys
 import numpy as np
 
 import auto_emailer as emailer
+import config.py as config
 
 # works for python 3 and windows and linux 64 bit
 
+stage_settings = config.load_stage_config()
+sync_settings = config.load_sync_config()
 
 class HH400_Histo_Manager:
 
@@ -19,15 +22,15 @@ class HH400_Histo_Manager:
         ##### Measurement Parameters #####
 
         # Exp Parameters
-        self.binning            = 4 # You can change this
+        self.binning            = sync_settings["binning"] # You can change this
         self.offset             = 0
-        self.syncDivider        = 1 # You can change this 
-        self.syncCFDZeroCross   = 10 # You can change this (in mV)
-        self.syncCFDLevel       = 50 # You can change this (in mV)
-        self.syncChannelOffset  = -5000 # You can change this (in ps, like a cable delay)
-        self.inputCFDZeroCross  = 10 # You can change this (in mV)
-        self.inputCFDLevel      = 50 # You can change this (in mV)
-        self.inputChannelOffset = 0 # You can change this (in ps, like a cable delay)
+        self.syncDivider        = sync_settings["syncDivider"] # You can change this 
+        self.syncCFDZeroCross   = sync_settings["syncCFDZeroCross"] # You can change this (in mV)
+        self.syncCFDLevel       = sync_settings["syncCFDLevel"] # You can change this (in mV)
+        self.syncChannelOffset  = sync_settings["syncChannelOffset"] # You can change this (in ps, like a cable delay)
+        self.inputCFDZeroCross  = sync_settings["inputCFDZeroCross"] # You can change this (in mV)
+        self.inputCFDLevel      = sync_settings["inputCFDLevel"] # You can change this (in mV)
+        self.inputChannelOffset = sync_settings["inputChannelOffset"] # You can change this (in ps, like a cable delay)
         
         # From hhdefin.h
         self.LIB_VERSION   = "3.0"
