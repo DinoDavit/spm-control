@@ -16,13 +16,7 @@ import auto_emailer as emailer
 from pathlib import Path
 import yaml
 
-from spm_control.config import (
-    load_stage_config,
-    load_piezo_motion_config,
-    load_hydraharp_config,
-    load_sync_config,
-    load_scan_config,
-)
+import spm_control.config as config
 
 # Moving to (38.8, 37.3, 0)...
 # Max intensity z positions (Sum, CH1, CH2): 10.099177, 11.599177, 10.399177
@@ -37,20 +31,10 @@ from spm_control.config import (
 # xlim = (point[0]-change, point[0] +change) # µm
 # ylim = (point[1]-change, point[1]+change) # µm
 
-def load_scan_config(path="config_files/scan.yaml"):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-
-    return config["scan"]
-
-def load_hardware_config(path="config_files/hardware.yaml"):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-
-    return config["hardware"]
-
-scan_config = load_scan_config()
-hardware_config = load_hardware_config()
+scan_settings = config.load_scan_settings()
+stage_settings = config.load_stage_config()
+motion_settings = config.load_piezo_motion()
+sync_settings = config.load_sync_config()
 
 def get_exp_num(folder_path, suff):
     """Input a folder_path and a suffix attatched to the end of the file before the number, it will find the latest txt file of that format"""
@@ -62,10 +46,10 @@ def get_exp_num(folder_path, suff):
             most_recent = max(int(num), most_recent)
     return most_recent + 1
 
-z_focus = scan_config["z_focus"] # µm (0 - 20)
-xlim = tuple(scan_config["xlim"]) # µm (0 - 100)
-ylim = tuple(scan_config["ylim"]) # µm (0 - 100)
-resolution = scan_config["resolution"] # um (>= 0.2) diffraction limit ~200 nm (.2)
+z_focus = scan_settings["z_focus"] # µm (0 - 20)
+xlim = tuple(scan_settings["xlim"]) # µm (0 - 100)
+ylim = tuple(scan_settings["ylim"]) # µm (0 - 100)
+resolution = scan_settings["resolution"] # um (>= 0.2) diffraction limit ~200 nm (.2)
 SPAD_WARNING_THRESH = 10**6
 
 #    THESE ARE ONLY PARAMETERS YOU NEED TO CHANGE
@@ -81,13 +65,13 @@ show_plot = True
 intensity_histograms=False
 show_scan_stats = True
 require_user_input = False
-if scan_config["limit_plot"]:
-    vmin, vmax = scan_config["vmin"], scan_config["vmax"]
+if scan["limit_plot"]:
+    vmin, vmax = scan["vmin"], scan["vmax"]
 # naming convention
 
 today = datetime.today().strftime('%Y-%m-%d')
 print(today)
-folder_path = Path(scan_config["folder_path"]) / today
+folder_path = Path(scan["folder_path"]) / today
 if not os.path.isdir(folder_path):
     os.mkdir(folder_path)
 
@@ -101,8 +85,8 @@ experiment_title = 'pq{}'.format(exp_num)
 scan_name = '{}_{}'.format(today, experiment_title) 
 
 # Specify controller and the stages to be connected to this controller.
-CONTROLLER_NAME = hardware_config["CONTROLLER_NAME"]
-STAGES =  hardware_config["STAGE_MODEL"] * hardware_config["NUM_AXES"]
+CONTROLLER_NAME = stage_settings["CONTROLLER_NAME"]
+STAGES =  stage_settings["STAGE_MODEL"] * stage_settings["NUM_AXES"]
 # connect stages to axes across # of dimensions 
 
 max_intensity0 = 0
@@ -113,8 +97,8 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
 
     # major_axis_wait_time = 0.3 # seconds
     # minor_axis_wait_time = 0.14 # seconds
-    major_axis_wait_time = 0.2 # seconds
-    minor_axis_wait_time = 0.1 # seconds
+    major_axis_delay = stage_settings["major_axis_delay"] # seconds
+    minor_axis_delay = stage_settings["minor_axis_delay"] # seconds
     
     # scan points in x and y [x0, xf] x [y0, yf] (um); z is fixed;
     xnodes = np.linspace(xlim[0], xlim[1], int((xlim[1]-xlim[0])/resolution) + 1).round(decimals=3) # x coordinates [0, distx] (um)
@@ -135,7 +119,7 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
 
     with GCSDevice(CONTROLLER_NAME) as pidevice, HH400_Histo_Manager(mode=0,send_error_email = send_email) as HH400, open(save_file, 'w') as scan_data_file:
         ########## Connect to and Initialize Piezo ##########
-        pidevice.ConnectUSB(serialnum='0120036309')
+        pidevice.ConnectUSB(serialnum=stage_settings["SERIAL_NUM"])
         pitools.startup(pidevice, stages=STAGES, refmodes=None)
         if autozero:
             pidevice.ATZ() # autozero
@@ -165,10 +149,10 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
                 time_move_0 = time.time()
                 pidevice.MOV({'1':x_pos,'2':y_pos}) # Move to xy position
                 if (y_pos - ylim[0]) == 0: # Wait for stage in major axis case (x-axis)
-                    while time.time() - time_move_0 < major_axis_wait_time:
+                    while time.time() - time_move_0 < major_axis_delay:
                         pass
                 else: # minor axis case (y-axis)
-                    while time.time() - time_move_0 < minor_axis_wait_time:
+                    while time.time() - time_move_0 < minor_axis_delay:
                         pass
                 
                 # Get position and intensity
@@ -296,4 +280,3 @@ if __name__ == '__main__':
         #image2.show()
 
     sys.exit(0)
-    
