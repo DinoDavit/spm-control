@@ -16,6 +16,14 @@ import auto_emailer as emailer
 from pathlib import Path
 import yaml
 
+from spm_control.config import (
+    load_stage_config,
+    load_piezo_motion_config,
+    load_hydraharp_config,
+    load_sync_config,
+    load_scan_config,
+)
+
 # Moving to (38.8, 37.3, 0)...
 # Max intensity z positions (Sum, CH1, CH2): 10.099177, 11.599177, 10.399177
 
@@ -288,3 +296,4 @@ if __name__ == '__main__':
         #image2.show()
 
     sys.exit(0)
+    
