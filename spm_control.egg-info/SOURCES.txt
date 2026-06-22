@@ -13,12 +13,37 @@ spm_control/analysis/io.py
 spm_control/analysis/plotting.py
 spm_control/gui/__init__.py
 spm_control/gui/app.py
+spm_control/gui/modes/raster_scan.py
 spm_control/hardware/__init__.py
 spm_control/hardware/hydraharp.py
 spm_control/hardware/interfaces.py
 spm_control/hardware/pi_stage.py
 spm_control/hardware/simulator_adapter.py
+spm_control/legacy_scripts/2024-04-18 scan_plotter.py
+spm_control/legacy_scripts/Yolo_helper.py
+spm_control/legacy_scripts/auto_emailer.py
+spm_control/legacy_scripts/dbgt2.py
+spm_control/legacy_scripts/find_focus.py
+spm_control/legacy_scripts/find_focus_functions.py
+spm_control/legacy_scripts/hydraharp_intensities.py
+spm_control/legacy_scripts/hydraharp_intensities2.py
+spm_control/legacy_scripts/hydraharp_intensities3.py
+spm_control/legacy_scripts/hydraharp_intensities_2.py
+spm_control/legacy_scripts/hydraharp_intensities_3.py
+spm_control/legacy_scripts/live_plotting_test.py
+spm_control/legacy_scripts/normed g2 T2 plotter.py
+spm_control/legacy_scripts/piezo_scan_move.py
+spm_control/legacy_scripts/read_tttr.py
+spm_control/legacy_scripts/run_multiscan3.py
+spm_control/legacy_scripts/run_scan_5.py
+spm_control/legacy_scripts/run_t2.py
+spm_control/legacy_scripts/scan_detect_ttr.py
+spm_control/legacy_scripts/scan_plot_and_analysis.py
+spm_control/legacy_scripts/scan_plot_and_analysis2.py
+spm_control/legacy_scripts/tttrmode.py
 spm_control/scan/__init__.py
 spm_control/scan/focus.py
 spm_control/scan/raster.py
 spm_control/scan/tttr_queue.py
+spm_control/work_in_progress_legacy_scripts/run_scan_5.py
+tests/test_scan_config.py
