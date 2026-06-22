@@ -1,6 +1,7 @@
 numpy
 matplotlib
 pyyaml
+ttkbootstrap
 
 [all]
 pytest
