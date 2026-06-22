@@ -4,9 +4,15 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import time
+
+import config.py as config
+
 from datetime import datetime
 
 from hydraharp_intensities import HH400_Histo_Manager
+
+stage_settings = config.load_stage_config()
+sync_settings = config.load_sync_config()
 
 def run_scan(start_pos, mode, increment = 0.5, tacq=100, autozero=False, focus_data_fn='focus_data', block = 6):
     """Connect, setup system and move stages and display the positions in a loop."""
@@ -18,7 +24,7 @@ def run_scan(start_pos, mode, increment = 0.5, tacq=100, autozero=False, focus_d
     # input('Press Enter to continue with focus scan...')
 
     # Open Connections
-    CONTROLLERNAME = 'E-727'
+    CONTROLLERNAME = stage_settings["CONTROLLER_NAME"]
     with GCSDevice(CONTROLLERNAME) as pidevice, HH400_Histo_Manager(send_error_email = False) as HH400, open(focus_data_fn, 'w') as focus_data_file:
         connect_piezo(pidevice, autozero=autozero)
         # Select Mode

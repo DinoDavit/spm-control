@@ -22,27 +22,22 @@ CONFIG_FILES = PROJECT_ROOT / "config_files"
 HARDWARE_CONFIG = CONFIG_FILES / "hardware.yaml"
 SCAN_CONFIG = CONFIG_FILES / "scan.yaml"
 
-def load_stage_config(path= HARDWARE_CONFIG):
+def load_named_settings(name, path):
     with open(path, "r") as file:
         config = yaml.safe_load(file)
-    return config["stage"]
+    return config[name]
 
-def load_piezo_motion(path= HARDWARE_CONFIG):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-    return config["piezo_scan_motion"]
+def load_stage_config():
+    return load_named_settings("stage", HARDWARE_CONFIG)
 
-def load_hydraharp(path= HARDWARE_CONFIG):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-    return config["piezo_scan_motion"]
+def load_piezo_motion_config():
+    return load_named_settings("piezo_scan_motion", HARDWARE_CONFIG)
 
-def load_sync_config(path= HARDWARE_CONFIG):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-    return config["sync"]
+def load_hydraharp_config():
+    return load_named_settings("hydraharp", HARDWARE_CONFIG)
 
-def load_scan_settings(path = SCAN_CONFIG):
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-    return config["sync"]
+def load_sync_config():
+    return load_named_settings("sync", HARDWARE_CONFIG)
+
+def load_scan_config():
+    return load_named_settings("scan", SCAN_CONFIG)
