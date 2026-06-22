@@ -126,7 +126,7 @@ class HH400_Histo_Manager:
         self.tryfunc(hhlib.HH_SetSyncDiv(ct.c_int(self.dev[0]), ct.c_int(self.syncDivider)), "SetSyncDiv")
         self.tryfunc(hhlib.HH_SetSyncCFD(ct.c_int(self.dev[0]), ct.c_int(self.syncCFDLevel), ct.c_int(self.syncCFDZeroCross)),"SetSyncCFD")
         self.tryfunc(hhlib.HH_SetSyncChannelOffset(ct.c_int(self.dev[0]), ct.c_int(self.syncChannelOffset)), "SetSyncChannelOffset")
-
+        
         # We use the same input settings for all channels, you can change this
         for i in range(0, self.numChannels.value):
             # set constant fractional discriminator (CFD) level and zero cross
@@ -144,7 +144,7 @@ class HH400_Histo_Manager:
         time.sleep(0.4)
 
         return None
-
+    
     def pre_phecks(self):
         ####### Get sync and count rates #########
 

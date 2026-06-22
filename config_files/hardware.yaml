@@ -4,20 +4,31 @@ stage:
   STAGE_MODEL: "P-517.3CD"
   NUM_AXES: 3
 
-piezo_motion:
-  major_axis_wait: 0.2 #s
-  minor_axis_wait: 0.1 #s
+piezo_scan_motion:
+  major_axis_delay: 0.2 #s
+  minor_axis_delay: 0.1 #s
   settle_time: 1.5 #s
   autozero_on_connect: false
+  #Can also be major_axis_wait_time = 0.3 # seconds
+  # minor_axis_wait_time = 0.14 # seconds
 
 hydraharp:
   name: "hydraharp_400"
   default_mode: "hist"
 
   sync:
-    syncDivider: 1 # (unitless) count evert nth pulse
-    syncCFDlevel: 50 # (mv) voltage threshold to recognize sync pulse
-    syncCFDZeroCross: 10 # (mv) const fraction discriminator
+    syncCFDlevel:             50 # (mv) voltage threshold to recognize sync pulse
+    syncCFDZeroCross:         10 # (mv) const fraction discriminator
+
+    binning:                  4
+    syncDivider:              1 # (unitless) count evert nth pulse
+    syncDivider:              1
+    syncCFDZeroCross:         10 # (in mV)
+    syncCFDLevel:             50 # (in mV)
+    syncChannelOffset:        -5000 # (in ps, like a cable delay)
+    inputCFDZeroCross:        10 # (in mV)
+    inputCFDLevel:            50 # (in mV)
+    inputChannelOffset:       0 # (in ps, like a cable delay)
     
 
     # CFD helps record the timing at which voltages were recieved 
