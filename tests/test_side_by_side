@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+data1 = np.random.rand(10, 10)
+data2 = np.random.rand(10, 10) * 100   # pretend this has a very different scale
+
+ny, nx = data1.shape
+
+fig, ax = plt.subplots(figsize=(10, 5))
+
+# left image: x from 0 to nx
+im1 = ax.imshow(
+    data1,
+    cmap="viridis",
+    origin="lower",
+    extent=[0, nx, 0, ny]
+)
+
+# right image: x from nx to 2*nx
+im2 = ax.imshow(
+    data2,
+    cmap="plasma",
+    origin="lower",
+    extent=[nx, 2*nx, 0, ny]
+)
+
+# middle divider
+ax.axvline(nx, color="black", linewidth=2)
+
+ax.set_xlim(0, 2 * nx)
+ax.set_ylim(0, ny)
+
+ax.set_aspect("equal")
+
+ax.set_title("Two heatmaps touching")
+ax.set_xlabel("Combined X index")
+ax.set_ylabel("Y index")
+
+# separate colorbars, separate scales
+cb1 = fig.colorbar(im1, ax=ax, location="left", shrink=0.8, pad=0.08)
+cb1.set_label("Data 1 scale")
+
+cb2 = fig.colorbar(im2, ax=ax, location="right", shrink=0.8, pad=0.08)
+cb2.set_label("Data 2 scale")
+
+plt.show()
