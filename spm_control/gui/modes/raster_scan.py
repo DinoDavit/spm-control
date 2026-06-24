@@ -8,10 +8,6 @@ def scan():
 
 scan_window = tk.Tk()
 scan_window.title('Demo')
-
-max_width = scan_window.winfo_screenwidth()
-max_height = scan_window.winfo_screenheight()
-
 scan_window.geometry(f'{max_width}x{max_height}')
 
 title_label = ttk.Label(master = scan_window, text = 'QD Coverslip Scanner', font = 'Calibri 24 bold')
@@ -39,15 +35,6 @@ input_frame.pack(
     pady = 10
 )
 input_frame.pack_propagate(False)
-
-def add_range_input(parent, name):
-    row = ttk.Frame(parent, text = 'name')
-    row.pack()
-
-    row.pack_propagate(False)
-
-def add_single_entry(parent, name):
-    row = ttk.Frame(parent)
 
 
 

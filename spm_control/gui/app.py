@@ -1,20 +1,25 @@
 import ttkbootstrap as ttk
+import customtkinter as ctk
+
 
 
 def main():
-    app = ttk.Window(themename="superhero")
-    app.title("SPM Control Workbench")
-
-    max_width = app.winfo_screenwidth()
-    max_height = app.winfo_screenheight()
-
-
-    app.geometry(f"{max_width}x{max_height}")
-
-    # build frames/pages here
-
+    app = Application()
     app.mainloop()
 
+
+class Application(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("SPM App")
+
+        max_width = self.winfo_screenwidth()
+        max_height = self.winfo_screenheight()
+        self.geometry(f"{max_width}x{max_height}")
+
+# # build frames/pages here
+
+# app.mainloop()
 
 if __name__ == "__main__":
     main()
