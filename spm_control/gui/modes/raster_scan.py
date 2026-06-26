@@ -33,5 +33,7 @@ class Scan_Page():
         title.pack(padx=10, pady=10)
     
     def build_main_ops(self):
-        self.main_vars = {}
-        page_helpers.add_range_input(self.option_parameters, "x")
+        p = self.option_parameters # main panel/parent
+        p.vars = {}
+        page_helpers.addRangeInput(p, "x")
+        page_helpers.addButton(p, "Run", page_helpers.update_config)
