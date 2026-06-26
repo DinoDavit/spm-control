@@ -38,8 +38,8 @@ def addCheckbox(parent, name):
     print("HELL OWORLD")
 
 
-def add_range_input(parent, name):
-        parent.entry[name] = ctk.CTkEntry(
+def addRangeInput(parent, name):
+        parent.entry = ctk.CTkEntry( # might need to do parent.entry[name] have to check since entry might have multiple...
             master=parent, 
             placeholder_text="",
             width=30,
@@ -47,12 +47,10 @@ def add_range_input(parent, name):
 
         parent.entry.pack(pady=10)
         val = parent.entry.get()
-        parent.vars[name: val]
+        parent.vars[name] = val
 
-def add_single_entry(parent, name):
+def addSingleEntry(parent, name):
     row = ctk.CTkFrame(parent)
     row.pack()
 
     row.pack_propogate(False)
-
-
