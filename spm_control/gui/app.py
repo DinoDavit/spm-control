@@ -1,4 +1,4 @@
-import ttkbootstrap as ttk
+from spm_control.gui.modes.raster_scan import Scan_Page
 import customtkinter as ctk
 
 ctk.set_appearance_mode("dark")
@@ -45,10 +45,13 @@ class Application(ctk.CTk):
                 relwidth = width,
                 relheight = height,
             )
+
+        self.raster_scan_page = Scan_Page(self)
         
 
 def main():
     app = Application()
+
     app.mainloop()
 
 if __name__ == "__main__":

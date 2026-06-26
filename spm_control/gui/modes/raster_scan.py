@@ -1,47 +1,41 @@
+import customtkinter as ctk
 import tkinter as tk
 import ttkbootstrap as ttk
-
 import sys
-
-def scan():
-    print("Hello World")
-
-scan_window = tk.Tk()
-scan_window.title('Demo')
-scan_window.geometry(f'{max_width}x{max_height}')
-
-title_label = ttk.Label(master = scan_window, text = 'QD Coverslip Scanner', font = 'Calibri 24 bold')
-title_label.pack()
-
-observation_frame = ttk.Frame(
-    scan_window,
-    width = max_width * 0.5,
-    height = max_height * 0.5,
-    borderwidth = 2,
-    relief = 'ridge'
-)
-
-input_frame = ttk.Frame(
-    scan_window,
-    width = max_width*0.2,
-    height = max_height * 0.5,
-    borderwidth=2, 
-    relief = 'ridge')
-
-input_frame.pack(
-    side = "bottom",
-    anchor = "se",
-    padx = 10,
-    pady = 10
-)
-input_frame.pack_propagate(False)
+from spm_control.gui.modes import page_helpers
 
 
+class Scan_Page():
+    def __init__(self, app):
+        required_panels = {
+            "mode_options",
+            "mode_display",
+            "option_parameters",
+            "counts",
+        }
 
+        self.panels = app.panels
 
-scan_button = ttk.Button(master = input_frame, text = 'Scan', command = scan)
-scan_button.pack(padx = 20, pady = 20, side = "bottom")
+        page_helpers.load_required_panels(
+            self, self.panels, required_panels)
 
+        self.app = app
+        self.build_display()
+        self.build_options()
 
+    def build_display(self):
+        title = ctk.CTkLabel(
+            master=self.mode_display, 
+            text="Main Scan Display", 
+            font=("Arial", 16, "bold"),
+        text_color="white",)
 
-scan_window.mainloop()
+        title.pack(padx=10, pady=10)
+    
+    def build_options(self):
+        page_helpers.add_range_input(self.option_parameters, "x")
+
+        
+
+    
+
