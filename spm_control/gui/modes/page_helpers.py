@@ -1,6 +1,18 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 import customtkinter as ctk
+import yaml
+
+def update_config(vars, file_name):
+    with open(file_name) as f:
+        doc = yaml.load(f)
+
+    for name, val in vars.items():
+        doc[name] = val
+
+    with open('file_to_edit.yaml', 'w') as f:
+        yaml.dump(doc, f)
+    
 
 def load_required_panels(page, panels, required_panels):
     page.panels = panels
@@ -16,7 +28,7 @@ def fillOptions(parent, options, function_calls):
 def addButton(parent, name, func):
     parent.button = ctk.CTkButton(
         master = parent,
-        text = 'Name',
+        text = name,
         command = func
     )
 
@@ -27,19 +39,15 @@ def addCheckbox(parent, name):
 
 
 def add_range_input(parent, name):
-        parent.my_entry = ctk.CTkEntry(
+        parent.entry[name] = ctk.CTkEntry(
             master=parent, 
             placeholder_text="",
             width=30,
         )
-        parent.my_entry.pack(pady=10)
 
-        parent.my_entry = ctk.CTkEntry(
-            master=parent, 
-            placeholder_text="",
-            width=30
-        )
-        parent.my_entry.pack(padx=1)
+        parent.entry.pack(pady=10)
+        val = parent.entry.get()
+        parent.vars[name: val]
 
 def add_single_entry(parent, name):
     row = ctk.CTkFrame(parent)

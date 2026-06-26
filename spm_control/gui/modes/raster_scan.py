@@ -21,7 +21,7 @@ class Scan_Page():
 
         self.app = app
         self.build_display()
-        self.build_options()
+        self.build_main_ops()
 
     def build_display(self):
         title = ctk.CTkLabel(
@@ -32,10 +32,6 @@ class Scan_Page():
 
         title.pack(padx=10, pady=10)
     
-    def build_options(self):
+    def build_main_ops(self):
+        self.main_vars = {}
         page_helpers.add_range_input(self.option_parameters, "x")
-
-        
-
-    
-
