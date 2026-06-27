@@ -36,4 +36,4 @@ class Scan_Page():
         p = self.option_parameters # main panel/parent
         p.vars = {}
         page_helpers.addRangeInput(p, "x")
-        page_helpers.addButton(p, "Run", page_helpers.update_config)
+        page_helpers.addButton(p, "Run", lambda: print(p.vars["x"]))
