@@ -36,7 +36,8 @@ class Scan_Page():
         p = self.option_parameters # main panel/parent
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
-        p.entries["x"] = page_helpers.createRangeInput(p, "x")
         Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        p.first_row = page_helpers.createFrame(p, "first_row", [100, 100, 150, 80])
+        p.first_row["x"] = page_helpers.createRangeInput(p.first_row, "xlim")
         p.Run = page_helpers.createButton(p, "Run", lambda: config.update(p.entries, "scan", Scan_Config))
 
