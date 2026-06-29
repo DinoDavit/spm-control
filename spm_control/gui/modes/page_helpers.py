@@ -1,13 +1,30 @@
 import tkinter as tk
 import ttkbootstrap as ttk
 import customtkinter as ctk
-import yaml
+from spm_control.gui.modes import validators as check
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
 
+def load_required_panels(page, panels, required_panels):
+    page.panels = panels
+    
+    for name in required_panels: 
+        if name not in panels:
+            raise KeyError(f"Required panel '{name}' was not found in app.panels")
+
+        setattr(page, name, panels[name])
+
 def createFrame(parent, name, dimensions):
-    frame = ctk.CTkFrame(parent)
+    if not hasattr(parent, "frames"):
+        parent.frames = {}
+
+    frame = ctk.CTkFrame(
+        parent,
+        border_width = 2,
+        border_color = "white",
+        fg_color = "black",
+    )
 
     frame.place(
         relx=dimensions["x"],
@@ -17,34 +34,8 @@ def createFrame(parent, name, dimensions):
     )
 
     parent.frames[name] = frame
-
     return frame
 
-def update_config(updates, name, file_name):
-    with open(file_name, "r") as f:
-        doc = yaml.safe_load(f) or {}
-
-    for value in updates.items():
-        doc[name] = value
-
-    with open(file_name, "w") as f:
-        yaml.safe_dump(doc, f, sort_keys=False)
-    
-
-def load_required_panels(page, panels, required_panels):
-    page.panels = panels
-    
-    for name in required_panels:
-        if name not in panels:
-            raise KeyError(f"Required panel '{name}' was not found in app.panels")
-
-        setattr(page, name, panels[name])
-
-def fillOptions(parent, options, function_calls):
-    print("HELLO WORLD")
-    
-def createButtonDisplay(parent, func):
-    print("HELLO WROLD")
 
 def createButton(parent, name, func):
     button = ctk.CTkButton(
@@ -57,19 +48,26 @@ def createButton(parent, name, func):
 
     return button
 
+def createButtonDisplay(parent, func):
+    print("HELLO WROLD")
+
+def fillOptions(parent, options, function_calls):
+    print("HELLO WORLD")
+
+
+
+
 def createCheckbox(parent, name):
     print("HELL OWORLD")
-
 
 def createRangeInput(parent, name, placeholder = ""):
         RangeInput = ctk.CTkEntry( # might need to do parent.entry[name] have to check since entry might have multiple...
             master=parent, 
             placeholder_text=placeholder,
             width=30,
+            
         )
 
-        val = RangeInput.get()
-        parent.vars[name] = val
         RangeInput.pack(pady=10)
         return RangeInput
 

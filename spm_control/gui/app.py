@@ -51,7 +51,6 @@ class Application(ctk.CTk):
 
 def main():
     app = Application()
-
     app.mainloop()
 
 if __name__ == "__main__":

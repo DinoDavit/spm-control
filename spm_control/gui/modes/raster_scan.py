@@ -3,7 +3,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 import sys
 from spm_control.gui.modes import page_helpers
-
+from spm_control.gui.modes import config
 
 class Scan_Page():
     def __init__(self, app):
@@ -34,6 +34,9 @@ class Scan_Page():
     
     def build_main_ops(self):
         p = self.option_parameters # main panel/parent
-        p.vars = {}
-        p.x = page_helpers.createRangeInput(p, "x")
-        p.Run = page_helpers.createButton(p, "Run", lambda: print(p.vars["x"]))
+        p.entries = {}
+        # Storing them in dictionary to later access them all in yaml file under same name
+        p.entries["x"] = page_helpers.createRangeInput(p, "x")
+        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        p.Run = page_helpers.createButton(p, "Run", lambda: config.update(p.entries, "scan", Scan_Config))
+
