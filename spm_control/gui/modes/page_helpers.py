@@ -32,13 +32,13 @@ def createFrame(parent, name, dimensions):
         border_width = 2,
         border_color = col2,
         fg_color = col1,
-        width=dimensions[2],
-        height=dimensions[3],
     )
 
     frame.place(
-        x=dimensions[0],
-        y=dimensions[1],
+        relx=dimensions[0],
+        rely=dimensions[1],
+        relwidth=dimensions[2],
+        relheight=dimensions[3],
     )
 
     parent.frames[name] = frame
@@ -65,29 +65,42 @@ def fillOptions(parent, options, function_calls):
 def createCheckbox(parent, name):
     print("HELL OWORLD")
 
-def createRangeInput(parent, name, placeholder_min="", placeholder_max=""):
-    left_paren = ctk.CTkLabel(parent, text="(", font = ("Arial", 25))
-    left_paren.pack(side="left", padx=(5, 2))
+def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
+    vcmd = (parent.register(check.is_num), "%P")
+    
+    label = ctk.CTkLabel(
+        parent,
+        text=name,
+        font=("Arial", 18)
+    )
+    label.pack(side="left", padx=(3, 5), expand=True)
+    
+    left_paren = ctk.CTkLabel(parent, text="(", font = ("Arial", 20.5))
+    left_paren.pack(side="left", padx=(4, 1), expand=True)
 
     min_entry = ctk.CTkEntry(
         master=parent,
         placeholder_text=placeholder_min,
         width=50,
+        height=30,
+        validatecommand = vcmd
     )
-    min_entry.pack(side="left", padx=2, fill="x", expand=True)
+    min_entry.pack(side="left", padx=1, fill="x", expand=True)
 
-    comma = ctk.CTkLabel(parent, text=",", font = ("Arial", 25))
-    comma.pack(side="left", padx=2)
+    comma = ctk.CTkLabel(parent, text=",", font = ("Arial", 20.5))
+    comma.pack(side="left", padx=1)
 
     max_entry = ctk.CTkEntry(
         master=parent,
         placeholder_text=placeholder_max,
         width=50,
+        height=30,
+        validatecommand = vcmd
     )
-    max_entry.pack(side="left", padx=2, fill="x", expand=True)
+    max_entry.pack(side="left", padx=1, fill="x", expand=True)
 
-    right_paren = ctk.CTkLabel(parent, text=")", font = ("Arial", 25))
-    right_paren.pack(side="left", padx=(2, 5))
+    right_paren = ctk.CTkLabel(parent, text=")", font = ("Arial", 20.5))
+    right_paren.pack(side="left", padx=(1, 4), expand=True)
 
     return min_entry, max_entry
 
