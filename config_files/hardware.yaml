@@ -16,21 +16,21 @@ hydraharp:
   name: "hydraharp_400"
   default_mode: "hist"
 
-  sync:
-    syncCFDlevel:             50 # (mv) voltage threshold to recognize sync pulse
-    syncCFDZeroCross:         10 # (mv) const fraction discriminator
+sync:
+  syncCFDlevel:             50 # (mv) voltage threshold to recognize sync pulse
+  syncCFDZeroCross:         10 # (mv) const fraction discriminator
 
-    binning:                  4
-    syncDivider:              1 # (unitless) count evert nth pulse
-    syncDivider:              1
-    syncCFDZeroCross:         10 # (in mV)
-    syncCFDLevel:             50 # (in mV)
-    syncChannelOffset:        -5000 # (in ps, like a cable delay)
-    inputCFDZeroCross:        10 # (in mV)
-    inputCFDLevel:            50 # (in mV)
-    inputChannelOffset:       0 # (in ps, like a cable delay)
-    
+  binning:                  4
+  syncDivider:              1 # (unitless) count evert nth pulse
+  syncDivider:              1
+  syncCFDZeroCross:         10 # (in mV)
+  syncCFDLevel:             50 # (in mV)
+  syncChannelOffset:        -5000 # (in ps, like a cable delay)
+  inputCFDZeroCross:        10 # (in mV)
+  inputCFDLevel:            50 # (in mV)
+  inputChannelOffset:       0 # (in ps, like a cable delay)
+  
 
-    # CFD helps record the timing at which voltages were recieved 
-    # by comparing them to itself while also splitting/treating the voltage.
-    # This reduces timing bias from pulse height differences.
+  # CFD helps record the timing at which voltages were recieved 
+  # by comparing them to itself while also splitting/treating the voltage.
+  # This reduces timing bias from pulse height differences.
