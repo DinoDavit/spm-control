@@ -44,10 +44,12 @@ class Scan_Page():
 
 
         p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.6, 0.05])
-        p.entries["x"] = page_helpers.createRangeInput(p.first_row, "x:")
+        p.entries["x_min"], p.entries["x_max"] = page_helpers.createRangeInput(p.first_row, "x:")
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.6, 0.05])
-        p.entries["y"] = page_helpers.createRangeInput(p.second_row, "y:")
-
+        p.entries["y_min"], p.entries["y_max"] = page_helpers.createRangeInput(p.second_row, "y:")
+    
+        p.third_row = page_helpers.createFrame(p, "third_row", [0.1, 0.27, 0.6, 0.05])
+        p.entries["z_focus"] = page_helpers.createSingleEntry(p.second_row, "z focus:")
 
         p.Run = page_helpers.createButton(p, "Run", lambda: config.update(p.entries, "scan", Scan_Config))
 

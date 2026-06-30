@@ -47,8 +47,8 @@ def get_exp_num(folder_path, suff):
     return most_recent + 1
 
 z_focus = scan_settings["z_focus"] # µm (0 - 20)
-xlim = tuple(scan_settings["xlim"]) # µm (0 - 100)
-ylim = tuple(scan_settings["ylim"]) # µm (0 - 100)
+xlim = tuple(scan_settings["x_min"], scan_settings["x_max"]) # µm (0 - 100)
+ylim = tuple(scan_settings["y_min"], scan_settings["y_max"]) # µm (0 - 100)
 resolution = scan_settings["resolution"] # um (>= 0.2) diffraction limit ~200 nm (.2)
 SPAD_WARNING_THRESH = 10**6
 

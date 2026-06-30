@@ -1,19 +1,19 @@
-def is_num(raw_value, name, min_value=None, max_value=None):
+def is_num(raw_value, min_value=None, max_value=None):
     raw_value = raw_value.strip()
 
     if raw_value == "":
-        raise ValueError(f"{name} cannot be empty.")
+        raise ValueError(f" cannot be empty.")
 
     try:
         value = float(raw_value)
     except ValueError:
-        raise ValueError(f"{name} must be a number.")
+        raise ValueError(f" must be a number.")
 
     if min_value is not None and value < min_value:
-        raise ValueError(f"{name} must be at least {min_value}.")
+        raise ValueError(f" must be at least {min_value}.")
 
     if max_value is not None and value > max_value:
-        raise ValueError(f"{name} must be at most {max_value}.")
+        raise ValueError(f" must be at most {max_value}.")
 
     return value
 
