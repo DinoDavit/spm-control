@@ -45,7 +45,7 @@ class Scan_Page():
 
         p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.6, 0.05])
         p.entries["x"] = page_helpers.createRangeInput(p.first_row, "x:")
-        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.18, 0.6, 0.05])
+        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.6, 0.05])
         p.entries["y"] = page_helpers.createRangeInput(p.second_row, "y:")
 
 

@@ -73,34 +73,49 @@ def createCheckbox(parent, name):
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
     vcmd = (parent.register(check.is_num), "%P")
-    
-    label = createLabel(parent, name)
-    label.pack(side="left", padx=(3, 5), expand=True)
-    
-    left_paren = createLabel(parent, text="(", sz = 19, side="left", expand=True, x_space = (4, 1))
+
+    name = name.rstrip(":")  # prevents x::
+
+    label = ctk.CTkLabel(
+        parent,
+        text=f"{name}:",
+        font=("Arial", 17, "bold"),
+        width=28,
+        anchor="e"
+    )
+    label.pack(side="left", padx=(0, 5))
 
     min_entry = ctk.CTkEntry(
-        master=parent,
+        parent,
         placeholder_text=placeholder_min,
-        width=50,
-        height=30,
-        validatecommand = vcmd
+        placeholder_text_color="#b0b0b0",
+        width=52,
+        height=26,
+        font=("Arial", 14),
+        validate="key",
+        validatecommand=vcmd
     )
-    min_entry.pack(side="left", padx=1, fill="x", expand=True)
+    min_entry.pack(side="left", padx=(0, 5))
 
-    comma = ctk.CTkLabel(parent, text="to", font = ("Arial", 19))
-    comma.pack(side="left", padx=1)
+    to_label = ctk.CTkLabel(
+        parent,
+        text="to",
+        font=("Arial", 16),
+        width=20
+    )
+    to_label.pack(side="left", padx=(0, 5))
 
     max_entry = ctk.CTkEntry(
-        master=parent,
+        parent,
         placeholder_text=placeholder_max,
-        width=50,
-        height=30,
-        validatecommand = vcmd
+        placeholder_text_color="#b0b0b0",
+        width=52,
+        height=26,
+        font=("Arial", 14),
+        validate="key",
+        validatecommand=vcmd
     )
-    max_entry.pack(side="left", padx=1, fill="x", expand=True)
-
-    right_paren = createLabel(parent, text=")", sz = 19, side="left", expand=True, x_space = (4, 1))
+    max_entry.pack(side="left")
 
     return min_entry, max_entry
 
