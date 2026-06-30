@@ -72,7 +72,7 @@ def createCheckbox(parent, name):
     print("HELL OWORLD")
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
-    vcmd = (parent.register(check.is_num), "%P")
+    vcmd = (parent.register(check.is_num), "%P", name)
 
     name = name.rstrip(":")  # prevents x::
 
@@ -117,14 +117,35 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
     )
     max_entry.pack(side="left")
 
-    return min_entry, max_entry
+    return [min_entry, max_entry]
 
-def createSingleEntry(parent, name):
-    row = ctk.CTkFrame(parent)
-    row.pack()
+def createSingleEntry(parent, name, placeholder="value", width=82):
+    vcmd = (parent.register(check.is_num), "%P")
+    name = name.rstrip(":")
 
-    row.pack_propagate(False)
+    label = ctk.CTkLabel(
+        parent,
+        text=f"{name}:",
+        font=("Arial", 17, "bold"),
+        width=92,
+        anchor="e"
+    )
+    label.pack(side="left", padx=(0, 8), pady=0)
 
+    entry = ctk.CTkEntry(
+        parent,
+        placeholder_text=placeholder,
+        placeholder_text_color="#b0b0b0",
+        width=width,
+        height=26,
+        font=("Arial", 14),
+        justify="center",
+        validate="key",
+        validatecommand=vcmd
+    )
+    entry.pack(side="left", pady=0)
+
+    return entry
 
 def createLabel(parent, text="", sz = 18, font = "Arial", side = "left", x_space = (10, 10), y_space = (0, 0), scale = True, expand = False):
     label = ctk.CTkLabel(
