@@ -72,18 +72,19 @@ def createCheckbox(parent, name):
     print("HELL OWORLD")
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
+    name = name.rstrip(":")
     vcmd = (parent.register(check.is_num), "%P", name)
 
-    name = name.rstrip(":")  # prevents x::
-
-    label = ctk.CTkLabel(
+    label = createLabel(
         parent,
         text=f"{name}:",
-        font=("Arial", 17, "bold"),
+        sz=17,
+        font="Arial",
         width=28,
-        anchor="e"
+        anchor="e",
+        pack=False
     )
-    label.pack(side="left", padx=(0, 5))
+    label.pack(side="left", padx=(0, 5), pady=0)
 
     min_entry = ctk.CTkEntry(
         parent,
@@ -92,18 +93,21 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         width=52,
         height=26,
         font=("Arial", 14),
+        justify="center",
         validate="key",
         validatecommand=vcmd
     )
-    min_entry.pack(side="left", padx=(0, 5))
+    min_entry.pack(side="left", padx=(0, 6), pady=0)
 
-    to_label = ctk.CTkLabel(
+    to_label = createLabel(
         parent,
         text="to",
-        font=("Arial", 16),
-        width=20
+        sz=15,
+        font="Arial",
+        width=20,
+        pack=False
     )
-    to_label.pack(side="left", padx=(0, 5))
+    to_label.pack(side="left", padx=(0, 6), pady=0)
 
     max_entry = ctk.CTkEntry(
         parent,
@@ -112,47 +116,86 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         width=52,
         height=26,
         font=("Arial", 14),
+        justify="center",
         validate="key",
         validatecommand=vcmd
     )
-    max_entry.pack(side="left")
+    max_entry.pack(side="left", pady=0)
 
-    return [min_entry, max_entry]
+    return min_entry, max_entry
 
-def createSingleEntry(parent, name, placeholder="value", width=82):
-    vcmd = (parent.register(check.is_num), "%P")
+def createSingleEntry(
+    parent,
+    name,
+    placeholder="value",
+    label_width=28,
+    entry_width=82,
+    min_allowed=None,
+    max_allowed=None,
+    config_key=None,
+):
     name = name.rstrip(":")
+    config_key = config_key or name
 
-    label = ctk.CTkLabel(
+    vcmd = (parent.register(check.is_num), "%P", name)
+
+    label = createLabel(
         parent,
         text=f"{name}:",
-        font=("Arial", 17, "bold"),
-        width=92,
-        anchor="e"
+        sz=17,
+        font="Arial",
+        width=label_width,
+        anchor="e",
+        pack=False,
     )
-    label.pack(side="left", padx=(0, 8), pady=0)
+    label.pack(side="left", padx=(0, 5), pady=0)
 
     entry = ctk.CTkEntry(
         parent,
         placeholder_text=placeholder,
         placeholder_text_color="#b0b0b0",
-        width=width,
+        width=entry_width,
         height=26,
         font=("Arial", 14),
         justify="center",
         validate="key",
-        validatecommand=vcmd
+        validatecommand=vcmd,
     )
     entry.pack(side="left", pady=0)
 
+    # Optional metadata for later validation / YAML saving
+    entry.config_key = config_key
+    entry.display_name = name
+    entry.min_allowed = min_allowed
+    entry.max_allowed = max_allowed
+
     return entry
 
-def createLabel(parent, text="", sz = 18, font = "Arial", side = "left", x_space = (10, 10), y_space = (0, 0), scale = True, expand = False):
-    label = ctk.CTkLabel(
+def createLabel(
     parent,
-    text=text,
-    font = (font, sz),
+    text="",
+    sz=18,
+    font="Arial",
+    side="left",
+    x_space=(10, 10),
+    y_space=(0, 0),
+    expand=False,
+    pack=True,
+    **kwargs
+):
+    label = ctk.CTkLabel(
+        parent,
+        text=text,
+        font=(font, sz),
+        **kwargs
     )
-    label.pack(side=side, padx=x_space, pady=y_space, expand=expand)
+
+    if pack:
+        label.pack(
+            side=side,
+            padx=x_space,
+            pady=y_space,
+            expand=expand
+        )
 
     return label
