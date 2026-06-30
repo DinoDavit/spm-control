@@ -37,7 +37,11 @@ class Scan_Page():
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
         Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
-        p.first_row = page_helpers.createFrame(p, "first_row", [100, 100, 150, 80])
-        p.first_row["x"] = page_helpers.createRangeInput(p.first_row, "xlim")
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.1, 0.6, 0.05])
+        p.entries["x"] = page_helpers.createRangeInput(p.first_row, "x:")
+        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.16, 0.6, 0.05])
+        p.entries["y"] = page_helpers.createRangeInput(p.second_row, "y:")
+
+
         p.Run = page_helpers.createButton(p, "Run", lambda: config.update(p.entries, "scan", Scan_Config))
 
