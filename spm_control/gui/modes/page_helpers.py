@@ -15,7 +15,7 @@ def load_required_panels(page, panels, required_panels):
 
         setattr(page, name, panels[name])
 
-def createFrame(parent, name, dimensions):
+def createFrame(parent, name, dimensions, outline = False):
     debug = False
     if not hasattr(parent, "frames"):
         parent.frames = {}
@@ -27,6 +27,10 @@ def createFrame(parent, name, dimensions):
         col1 = "transparent"
         col2 = ""
 
+    if (outline == True):
+        col1 ="black"
+        col2 = "white"
+
     frame = ctk.CTkFrame(
         parent,
         border_width = 2,
@@ -34,6 +38,8 @@ def createFrame(parent, name, dimensions):
         fg_color = col1,
     )
 
+
+    # Using relative coordinates because those scale
     frame.place(
         relx=dimensions[0],
         rely=dimensions[1],
@@ -52,7 +58,7 @@ def createButton(parent, name, func):
         command = func
     )
 
-    button.pack(padx=20, pady=20)
+    button.pack(padx=20, pady=20, expand = True)
 
     return button
 
@@ -68,15 +74,10 @@ def createCheckbox(parent, name):
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
     vcmd = (parent.register(check.is_num), "%P")
     
-    label = ctk.CTkLabel(
-        parent,
-        text=name,
-        font=("Arial", 18)
-    )
+    label = createLabel(parent, name)
     label.pack(side="left", padx=(3, 5), expand=True)
     
-    left_paren = ctk.CTkLabel(parent, text="(", font = ("Arial", 20.5))
-    left_paren.pack(side="left", padx=(4, 1), expand=True)
+    left_paren = createLabel(parent, text="(", sz = 19, side="left", expand=True, x_space = (4, 1))
 
     min_entry = ctk.CTkEntry(
         master=parent,
@@ -87,7 +88,7 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
     )
     min_entry.pack(side="left", padx=1, fill="x", expand=True)
 
-    comma = ctk.CTkLabel(parent, text=",", font = ("Arial", 20.5))
+    comma = ctk.CTkLabel(parent, text="to", font = ("Arial", 19))
     comma.pack(side="left", padx=1)
 
     max_entry = ctk.CTkEntry(
@@ -99,8 +100,7 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
     )
     max_entry.pack(side="left", padx=1, fill="x", expand=True)
 
-    right_paren = ctk.CTkLabel(parent, text=")", font = ("Arial", 20.5))
-    right_paren.pack(side="left", padx=(1, 4), expand=True)
+    right_paren = createLabel(parent, text=")", sz = 19, side="left", expand=True, x_space = (4, 1))
 
     return min_entry, max_entry
 
@@ -109,3 +109,14 @@ def createSingleEntry(parent, name):
     row.pack()
 
     row.pack_propagate(False)
+
+
+def createLabel(parent, text="", sz = 18, font = "Arial", side = "left", x_space = (10, 10), y_space = (0, 0), scale = True, expand = False):
+    label = ctk.CTkLabel(
+    parent,
+    text=text,
+    font = (font, sz),
+    )
+    label.pack(side=side, padx=x_space, pady=y_space, expand=expand)
+
+    return label
