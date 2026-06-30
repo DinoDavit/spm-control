@@ -37,9 +37,15 @@ class Scan_Page():
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
         Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
-        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.1, 0.6, 0.05])
+
+        p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
+        p.title_frame.pack_propagate = False
+        p.title = page_helpers.createLabel(p.title_frame, "Scan Config", sz=24, side="top", y_space=(4, 4))
+
+
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.6, 0.05])
         p.entries["x"] = page_helpers.createRangeInput(p.first_row, "x:")
-        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.16, 0.6, 0.05])
+        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.18, 0.6, 0.05])
         p.entries["y"] = page_helpers.createRangeInput(p.second_row, "y:")
 
 
