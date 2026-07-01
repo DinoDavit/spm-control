@@ -51,14 +51,15 @@ def createFrame(parent, name, dimensions, outline = False):
     return frame
 
 
-def createButton(parent, name, func):
+def createButton(parent, name, cRad, func):
     button = ctk.CTkButton(
         master = parent,
         text = name,
-        command = func
+        command = func,
+        corner_radius=cRad
     )
 
-    button.pack(padx=20, pady=20, expand = True)
+    button.pack(expand = True, anchor = "center")
 
     return button
 
@@ -71,7 +72,7 @@ def fillOptions(parent, options, function_calls):
 def createCheckbox(parent, name):
     print("HELL OWORLD")
 
-def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="min", placeholder_max="max"):
+def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="min", placeholder_max="max", multi = 0):
     name = name.rstrip(":")
     vcmd = (parent.register(check.is_num), "%P", name)
 
@@ -99,8 +100,8 @@ def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="
         validatecommand=vcmd
     )
     
-    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, min_val, max_val))
-    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, min_val, max_val))
+    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, min_val, max_val, multiple = multi))
+    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, min_val, max_val, multiple = multi))
 
     min_entry.pack(side="left", padx=(0, 6), pady=0)
 
@@ -142,6 +143,7 @@ def createSingleEntry(
     min_val=None,
     max_val=None,
     config_key=None,
+    multi = 0,
 ):
     name = name.rstrip(":")
     config_key = config_key or name
@@ -173,8 +175,8 @@ def createSingleEntry(
     entry.pack(side="left", pady=0)
 
     if (min_val or max_val):
-        entry.bind("<Return>", lambda event: check.within_range(entry, min_val, max_val))
-        entry.bind("<FocusOut>", lambda event: check.within_range(entry, min_val, max_val))
+        entry.bind("<Return>", lambda event: check.within_range(entry, min_val, max_val, multiple = multi))
+        entry.bind("<FocusOut>", lambda event: check.within_range(entry, min_val, max_val, multiple = multi))
 
     return entry
 
