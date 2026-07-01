@@ -49,7 +49,7 @@ class Scan_Page():
         p.entries["y_min"], p.entries["y_max"] = page_helpers.createRangeInput(p.second_row, "Y:")
     
         p.third_row = page_helpers.createFrame(p, "third_row", [0.13, 0.27, 0.4, 0.05])
-        p.entries["z_focus"] = page_helpers.createSingleEntry(p.third_row, "Z-focus:")
+        p.entries["z_focus"] = page_helpers.createSingleEntry(p.third_row, "Z-focus:", 0, 20)
 
         p.Run = page_helpers.createButton(p, "Run", lambda: config.update(p.entries, "scan", Scan_Config))
 

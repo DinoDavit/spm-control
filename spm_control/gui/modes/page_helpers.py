@@ -71,7 +71,7 @@ def fillOptions(parent, options, function_calls):
 def createCheckbox(parent, name):
     print("HELL OWORLD")
 
-def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
+def createRangeInput(parent, name, min = 0, max = 100, placeholder_min="min", placeholder_max="max"):
     name = name.rstrip(":")
     vcmd = (parent.register(check.is_num), "%P", name)
 
@@ -84,6 +84,7 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         anchor="e",
         pack=False
     )
+
     label.pack(side="left", padx=(0, 5), pady=0)
 
     min_entry = ctk.CTkEntry(
@@ -97,6 +98,10 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         validate="key",
         validatecommand=vcmd
     )
+    
+    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, 0, 100))
+    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, 0, 100))
+
     min_entry.pack(side="left", padx=(0, 6), pady=0)
 
     to_label = createLabel(
@@ -120,6 +125,10 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         validate="key",
         validatecommand=vcmd
     )
+
+    max_entry.bind("<Return>", lambda event: check.within_range(max_entry, 0, 100))
+    max_entry.bind("<FocusOut>", lambda event: check.within_range(max_entry, 0, 100))
+    
     max_entry.pack(side="left", pady=0)
 
     return min_entry, max_entry
@@ -127,6 +136,8 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
 def createSingleEntry(
     parent,
     name,
+    min,
+    max,
     placeholder="value",
     label_width=28,
     entry_width=82,
