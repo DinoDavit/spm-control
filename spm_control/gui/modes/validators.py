@@ -12,7 +12,7 @@ def within_range(entry, min_val, max_val, next_entry = None, multiple = 0):
         entry.configure(border_color = "red")
         entry.insert(0, str(clamped_val))
 
-    if (multiple and clamped_val % multiple !=0):
+    elif (multiple and clamped_val % multiple !=0 and str(clamped_val)[-2:]!=".0"):
         entry.delete(0, "end")
         entry.configure(border_color = "red")
         entry.insert(0, str(round(clamped_val / multiple) * multiple))
