@@ -71,7 +71,7 @@ def fillOptions(parent, options, function_calls):
 def createCheckbox(parent, name):
     print("HELL OWORLD")
 
-def createRangeInput(parent, name, min = 0, max = 100, placeholder_min="min", placeholder_max="max"):
+def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="min", placeholder_max="max"):
     name = name.rstrip(":")
     vcmd = (parent.register(check.is_num), "%P", name)
 
@@ -99,8 +99,8 @@ def createRangeInput(parent, name, min = 0, max = 100, placeholder_min="min", pl
         validatecommand=vcmd
     )
     
-    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, 0, 100))
-    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, 0, 100))
+    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, min_val, max_val))
+    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, min_val, max_val))
 
     min_entry.pack(side="left", padx=(0, 6), pady=0)
 
@@ -126,8 +126,8 @@ def createRangeInput(parent, name, min = 0, max = 100, placeholder_min="min", pl
         validatecommand=vcmd
     )
 
-    max_entry.bind("<Return>", lambda event: check.within_range(max_entry, 0, 100))
-    max_entry.bind("<FocusOut>", lambda event: check.within_range(max_entry, 0, 100))
+    max_entry.bind("<Return>", lambda event: check.within_range(max_entry, min_val, max_val))
+    max_entry.bind("<FocusOut>", lambda event: check.within_range(max_entry, min_val, max_val))
     
     max_entry.pack(side="left", pady=0)
 
@@ -136,13 +136,11 @@ def createRangeInput(parent, name, min = 0, max = 100, placeholder_min="min", pl
 def createSingleEntry(
     parent,
     name,
-    min,
-    max,
     placeholder="value",
     label_width=28,
     entry_width=82,
-    min_allowed=None,
-    max_allowed=None,
+    min_val=None,
+    max_val=None,
     config_key=None,
 ):
     name = name.rstrip(":")
@@ -174,11 +172,9 @@ def createSingleEntry(
     )
     entry.pack(side="left", pady=0)
 
-    # Optional metadata for later validation / YAML saving
-    entry.config_key = config_key
-    entry.display_name = name
-    entry.min_allowed = min_allowed
-    entry.max_allowed = max_allowed
+    if (min_val or max_val):
+        entry.bind("<Return>", lambda event: check.within_range(entry, min_val, max_val))
+        entry.bind("<FocusOut>", lambda event: check.within_range(entry, min_val, max_val))
 
     return entry
 
