@@ -10,26 +10,59 @@ def getDimensions(parent):
 def createPanels(parent, layout):
     # Getting name from layout and creating corresponding frames
     panels = {}
-    for name, (x, y, width, height) in layout.items():
+    for name, dims in layout.items():
+        panels[name] = create_panel(parent, name, dims)
+    return panels
 
-        panels[name] = ctk.CTkFrame(
-            parent,
-            border_width = 2,
-            border_color = "white",
-            fg_color = "black",
-        )
 
-        # Defining placement and dimensions of frames
-        panels[name].place(
-            relx = x,
-            rely = y,
-            relwidth = width,
-            relheight = height,
+def create_panel(parent, name, dims):
+    x, y, w, h = dims
+
+    panel = ctk.CTkFrame(
+        parent,
+        border_width=2,
+        border_color="white",
+        fg_color="black",
         )
+    
+    panel.place(
+        relx=x,
+        rely=y,
+        relwidth=w,
+        relheight=h,
+    )
+
+    return panel
+
+
+def reload_panel(panels, layout, panel_name):
+    """
+    Destroy one panel and recreate it in the same layout position.
+    """
+    app = panels[panel_name].master
+
+    if panel_name in panels:
+        panels[panel_name].destroy()
+
+    panels[panel_name] = create_panel(
+        parent=app,
+        name=panel_name,
+        dims=layout[panel_name],
+    )
+
+    return panels[panel_name]
+
+
+def reload_panels(panels, layout, panel_names):
+    """
+    Destroy and recreate multiple panels.
+    """
+
+    for panel_name in panel_names:
+        app = panels[panel_name].master
+        reload_panel(app, panels, layout, panel_name)
 
     return panels
-    
-
 
 def load_required_panels(page, panels, required_panels):
     page.panels = panels
@@ -79,9 +112,9 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
 
     for i, (name, command) in enumerate(loadout.items()):
         if (horizontal):
-            dims = [button_size * i, 0, button_size * (i + 1), 1]
+            dims = [button_size * i, 0, button_size, 1]
         else:
-            dims = [0, button_size * i, 1, button_size * (i + 1)]
+            dims = [0, button_size * i, 1, button_size]
 
         frame = createFrame(
             parent,

@@ -1,6 +1,7 @@
 import sys
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
+from spm_control.gui.layout import MAIN_LAYOUT
 
 class Scan_Page():
     def __init__(self, app):
@@ -18,12 +19,6 @@ class Scan_Page():
         self.app = app
         self.OpenRunMenu()
         self.build_mode_ops()
-    
-    def OpenFilterMenu(self):
-        p = self.option_parameters # main panel/parent
-        p.entries = {}
-
-        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
 
     def OpenRunMenu(self):
         p = self.option_parameters # main panel/parent
@@ -35,15 +30,12 @@ class Scan_Page():
         p.title_frame.pack_propagate = False
         p.title = page_helpers.createLabel(p.title_frame, "Scan Config", sz=24, side="top", y_space=(4, 4))
 
-
         p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.6, 0.05])
         p.entries["x_min"], p.entries["x_max"] = page_helpers.createRangeInput(p.first_row, "X:")
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.6, 0.05])
         p.entries["y_min"], p.entries["y_max"] = page_helpers.createRangeInput(p.second_row, "Y:")
-    
         p.third_row = page_helpers.createFrame(p, "third_row", [0.13, 0.27, 0.4, 0.05])
         p.entries["z_focus"] = page_helpers.createSingleEntry(p.third_row, "Z-focus")
-
         p.fourth_row = page_helpers.createFrame(p, "third_row", [0.13, 0.34, 0.47, 0.05])
         p.entries["resolution"] = page_helpers.createSingleEntry(p.fourth_row, "Resolution")
 
@@ -56,14 +48,31 @@ class Scan_Page():
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config))
-        
+
+    def OpenFilterMenu(self):
+        p = self.option_parameters # main panel/parent
+        page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
+        p.entries = {}
+
+        Scan_Data = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+
+        p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
+        p.title_frame.pack_propagate = False
+        p.title = page_helpers.createLabel(p.title_frame, "Scan Config", sz=24, side="top", y_space=(4, 4))
+    
+    def OpenZoomMenu(self):
+        p = self.option_parameters # main panel/parent
+        p.entries = {}
+
+        Scan_Data = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        print("Will add zoom input stuff that will fetch the metadata of file or something...")
     
     def build_mode_ops(self):
         p = self.mode_options
         options_loadout = {
             "run": self.OpenRunMenu,
-            # "filter": self.OpenFilterMenu,
-            # "magnification": self.OpenZoomMenu,
+            "filter": self.OpenFilterMenu,
+            "magnification": self.OpenZoomMenu,
             # "calendar": self.OpenCalendarMenu,
         }
         button_size = 0.08
