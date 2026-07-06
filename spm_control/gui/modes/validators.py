@@ -3,8 +3,12 @@ import customtkinter as ctk
 def clamp(value, min_val, max_val):
     return max(min_val, min(value, max_val))
 
-def within_range(entry, min_val, max_val, next_entry = None, multiple = 0):
+def within_range(entry, min_val, max_val, next_entry = None, multiple = 0, EnterKey=True, ranged_input=False):
     raw_val = float(entry.get())
+
+    if (ranged_input and not is_empty(next_entry.get())):
+        raw_val2 = float(next_entry.get())
+        min_val = min(min_val, raw_val2)
     clamped_val = clamp(raw_val, min_val, max_val)
 
     if (clamped_val != raw_val):
@@ -23,8 +27,11 @@ def within_range(entry, min_val, max_val, next_entry = None, multiple = 0):
         if (next_entry):
             next_entry.focus_set()
 
-        else:
+        elif(EnterKey):
             entry.master.focus_set()
+
+def is_empty(raw_val):
+    return raw_val==""
 
 def is_num(raw_value, min_value=None, max_value=None):
     raw_value = raw_value.strip()

@@ -29,24 +29,7 @@ class Application(ctk.CTk):
 
         self.geometry(f"{max_width}x{max_height}")
 
-        self.panels = {}
-        # Getting name from layout and creating corresponding frames
-        for name, (x, y, width, height) in layout.items():
-
-            self.panels[name] = ctk.CTkFrame(
-                self,
-                border_width = 2,
-                border_color = "white",
-                fg_color = "black",
-            )
-
-            # Defining placement and dimensions of frames
-            self.panels[name].place(
-                relx = x,
-                rely = y,
-                relwidth = width,
-                relheight = height,
-            )
+        self.panels = page_helpers.createPanels(self, layout)
         
         self.build_mode_toolbar()
 

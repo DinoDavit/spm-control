@@ -4,9 +4,32 @@ from PIL import Image
 from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
-
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
+
+def createPanels(parent, layout):
+    # Getting name from layout and creating corresponding frames
+    panels = {}
+    for name, (x, y, width, height) in layout.items():
+
+        panels[name] = ctk.CTkFrame(
+            parent,
+            border_width = 2,
+            border_color = "white",
+            fg_color = "black",
+        )
+
+        # Defining placement and dimensions of frames
+        panels[name].place(
+            relx = x,
+            rely = y,
+            relwidth = width,
+            relheight = height,
+        )
+
+    return panels
+    
+
 
 def load_required_panels(page, panels, required_panels):
     page.panels = panels
@@ -142,7 +165,7 @@ def createButtonDisplay(parent, PNG, func):
 
 #     return checkbox, var
 
-def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="min", placeholder_max="max", multi = 0):
+def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
     name = name.rstrip(":")
     vcmd = (parent.register(check.is_num), "%P", name)
 
@@ -169,11 +192,6 @@ def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="
         validate="key",
         validatecommand=vcmd
     )
-    
-    min_entry.bind("<Return>", lambda event: check.within_range(min_entry, min_val, max_val, multiple = multi))
-    min_entry.bind("<FocusOut>", lambda event: check.within_range(min_entry, min_val, max_val, multiple = multi))
-
-    min_entry.pack(side="left", padx=(0, 6), pady=0)
 
     to_label = createLabel(
         parent,
@@ -197,9 +215,7 @@ def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="
         validatecommand=vcmd
     )
 
-    max_entry.bind("<Return>", lambda event: check.within_range(max_entry, min_val, max_val))
-    max_entry.bind("<FocusOut>", lambda event: check.within_range(max_entry, min_val, max_val))
-    
+    min_entry.pack(side="left", padx=(0, 6), pady=0)
     max_entry.pack(side="left", pady=0)
 
     return min_entry, max_entry
@@ -244,10 +260,6 @@ def createSingleEntry(
     )
     entry.pack(side="left", pady=0)
 
-    if (min_val or max_val):
-        entry.bind("<Return>", lambda event: check.within_range(entry, min_val, max_val, multiple = multi))
-        entry.bind("<FocusOut>", lambda event: check.within_range(entry, min_val, max_val, multiple = multi))
-
     return entry
 
 def createLabel(
@@ -278,3 +290,24 @@ def createLabel(
         )
 
     return label
+
+def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=False):
+    if (min_val or max_val):
+            entry.bind("<FocusOut>", lambda event: check.within_range(
+                entry, 
+                min_val, 
+                max_val, 
+                multiple = multi, 
+                ranged_input=ranged,
+                next_entry = nextE,
+                EnterKey=False)
+                )
+            
+            entry.bind("<Return>", lambda event: check.within_range(
+                entry, 
+                min_val, 
+                max_val, 
+                multiple=multi)
+                )
+    else:
+        print("Will expand this to accept text entries of certain formats potentially")
