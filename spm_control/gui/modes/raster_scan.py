@@ -1,6 +1,3 @@
-import customtkinter as ctk
-import tkinter as tk
-import ttkbootstrap as ttk
 import sys
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
@@ -16,23 +13,19 @@ class Scan_Page():
 
         self.panels = app.panels
 
-        page_helpers.load_required_panels(
-            self, self.panels, required_panels)
+        page_helpers.load_required_panels(self, self.panels, required_panels)
 
         self.app = app
-        self.build_display()
-        self.build_main_ops()
-
-    def build_display(self):
-        title = ctk.CTkLabel(
-            master=self.mode_display, 
-            text="Main Scan Display", 
-            font=("Arial", 16, "bold"),
-        text_color="white",)
-
-        title.pack(padx=10, pady=10)
+        self.OpenRunMenu()
+        self.build_mode_ops()
     
-    def build_main_ops(self):
+    def OpenFilterMenu(self):
+        p = self.option_parameters # main panel/parent
+        p.entries = {}
+
+        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+
+    def OpenRunMenu(self):
         p = self.option_parameters # main panel/parent
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
@@ -57,3 +50,16 @@ class Scan_Page():
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config))
 
+        
+    
+    def build_mode_ops(self):
+        p = self.mode_options
+        options_loadout = {
+            "run": self.OpenRunMenu,
+            # "filter": self.OpenFilterMenu,
+            # "magnification": self.OpenZoomMenu,
+            # "calendar": self.OpenCalendarMenu,
+        }
+        button_size = 0.08
+
+        page_helpers.createToolbar(p, options_loadout, button_size)

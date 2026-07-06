@@ -1,7 +1,9 @@
-import tkinter as tk
-import ttkbootstrap as ttk
+from pathlib import Path
 import customtkinter as ctk
+from PIL import Image
 from spm_control.gui.modes import validators as check
+from pathlib import Path
+from PIL import Image
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
@@ -37,8 +39,6 @@ def createFrame(parent, name, dimensions, outline = False):
         border_color = col2,
         fg_color = col1,
     )
-
-
     # Using relative coordinates because those scale
     frame.place(
         relx=dimensions[0],
@@ -50,6 +50,33 @@ def createFrame(parent, name, dimensions, outline = False):
     parent.frames[name] = frame
     return frame
 
+def createToolbar(parent, loadout, button_size, horizontal=True):
+    parent.options = {}
+    assets = "/Users/davitmoreno/Downloads/Compressed/spm_control/gui/assets/"
+
+    for i, (name, command) in enumerate(loadout.items()):
+        if (horizontal):
+            dims = [button_size * i, 0, button_size * (i + 1), 1]
+        else:
+            dims = [0, button_size * i, 1, button_size * (i + 1)]
+
+        frame = createFrame(
+            parent,
+            f"{name}_frame",
+            dims,
+            outline=True,
+        )
+
+        button = createButtonDisplay(
+            frame,
+            f"{assets}{name}.png",
+            command,
+        )
+
+        parent.options[name] = {
+            "frame": frame,
+            "button": button,
+        }
 
 def createButton(parent, name, cRad, func):
     button = ctk.CTkButton(
@@ -63,14 +90,57 @@ def createButton(parent, name, cRad, func):
 
     return button
 
-def createButtonDisplay(parent, func):
-    print("HELLO WROLD")
 
-def fillOptions(parent, options, function_calls):
-    print("HELLO WORLD")
+def createButtonDisplay(parent, PNG, func):
+    raw_image = Image.open(PNG).convert("RGBA")
 
-def createCheckbox(parent, name):
-    print("HELL OWORLD")
+    my_button = ctk.CTkButton(
+        master=parent,
+        text="",
+        command=func,
+        fg_color="white",
+        hover_color="blue"
+    )
+
+    my_button.pack(
+        padx=10,
+        pady=10,
+        fill="both",
+        expand=True
+    )
+
+    def resize_to_parent(event):
+        available_width = event.width
+        available_height = event.height
+
+        image_width = int(available_width * 0.6)
+        image_height = int(available_height * 0.6)
+
+        btn_image = ctk.CTkImage(
+            light_image=raw_image,
+            dark_image=raw_image,
+            size=(image_width, image_height)
+        )
+
+        my_button.configure(image=btn_image)
+        my_button.image_ref = btn_image
+
+    parent.bind("<Configure>", resize_to_parent)
+
+    return my_button
+
+# def createCheckbox(parent, text, default=False, side="top"):
+#     var = ctk.BooleanVar(value=default)
+
+#     checkbox = ctk.CTkCheckBox(
+#         parent,
+#         text=text,
+#         variable=var
+#     )
+
+#     checkbox.pack(side=side, anchor="w", padx=10, pady=5)
+
+#     return checkbox, var
 
 def createRangeInput(parent, name, min_val = 0, max_val = 100, placeholder_min="min", placeholder_max="max", multi = 0):
     name = name.rstrip(":")
