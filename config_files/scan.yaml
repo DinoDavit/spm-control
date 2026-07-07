@@ -1,14 +1,22 @@
 scan:
-  z_focus: 11.5
+  z_focus: 1
   x: '3333'
-  x_min: 30
-  x_max: 70
-  y_min: 20
-  y_max: 60
-  resolution: 0.5
+  x_min: 1
+  x_max: 100
+  y_min: 2
+  y_max: 100
+  resolution: 0.2
   show_plot: true
   intensity_histograms: false
   limit_plot: true
   vmin: 200
   vmax: 200000
   folder_path: C:/Users/spmno/OneDrive/Documents/spm/Scan/Scan Data
+intensities:
+  intensity_min: 3
+  intensity_max: 21
+zoom:
+  x_min: 0
+  x_max: 100
+  y_min: 0
+  y_max: 100

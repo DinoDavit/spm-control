@@ -4,6 +4,7 @@ from PIL import Image
 from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
+
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
 
@@ -36,21 +37,15 @@ def create_panel(parent, name, dims):
 
 
 def reload_panel(panels, layout, panel_name):
-    """
-    Destroy one panel and recreate it in the same layout position.
-    """
-    app = panels[panel_name].master
+    old_panel = panels[panel_name]
+    parent = old_panel.master
 
-    if panel_name in panels:
-        panels[panel_name].destroy()
+    old_panel.destroy()
 
-    panels[panel_name] = create_panel(
-        parent=app,
-        name=panel_name,
-        dims=layout[panel_name],
-    )
+    new_panel = create_panel(parent, panel_name,layout[panel_name])
+    panels[panel_name] = new_panel
 
-    return panels[panel_name]
+    return new_panel
 
 
 def reload_panels(panels, layout, panel_names):
@@ -155,7 +150,7 @@ def createButtonDisplay(parent, PNG, func):
         text="",
         command=func,
         fg_color="white",
-        hover_color="blue"
+        hover_color="gray"
     )
 
     my_button.pack(
@@ -200,7 +195,7 @@ def createButtonDisplay(parent, PNG, func):
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
     name = name.rstrip(":")
-    vcmd = (parent.register(check.is_num), "%P", name)
+    vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
 
     label = createLabel(
         parent,
@@ -225,17 +220,7 @@ def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max")
         validate="key",
         validatecommand=vcmd
     )
-
-    to_label = createLabel(
-        parent,
-        text="to",
-        sz=15,
-        font="Arial",
-        width=20,
-        pack=False
-    )
-    to_label.pack(side="left", padx=(0, 6), pady=0)
-
+    
     max_entry = ctk.CTkEntry(
         parent,
         placeholder_text=placeholder_max,
@@ -267,7 +252,7 @@ def createSingleEntry(
     name = name.rstrip(":")
     config_key = config_key or name
 
-    vcmd = (parent.register(check.is_num), "%P", name)
+    vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
 
     label = createLabel(
         parent,
