@@ -63,6 +63,3 @@ def is_bool(val):
 
     # allow only booleans
     return val.isboolean()
-
-# def is_withinRange(val, range):
-    # try 

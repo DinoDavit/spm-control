@@ -47,7 +47,7 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config))
+        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, demo=True))
 
     def OpenFilterMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
