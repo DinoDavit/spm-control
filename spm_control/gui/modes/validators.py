@@ -1,13 +1,6 @@
 import customtkinter as ctk
 import re
 
-PARTIAL_NUMBER_RE = re.compile(r"""
-    ^[+-]?(
-        (\d+(\.\d*)?) |      # 10, 10., 10.5
-        (\.\d+)             # .5
-    )?
-    ([eE][+-]?\d*)?$         # e, e-, e+10, e10
-""", re.VERBOSE)
 
 def clamp(value, min_val, max_val):
     return max(min_val, min(value, max_val))
@@ -51,11 +44,13 @@ def is_num(raw_value, min_value=None, max_value=None):
             return False
     return True
 
-def validate_numeric_typing(text):
-    if text == "":
+def validate_numeric_typing(proposed_value, typed_char):
+    if proposed_value == "":
         return True
 
-    return bool(PARTIAL_NUMBER_RE.match(text))
+    allowed_chars = "0123456789.-eE"
+
+    return all(char in allowed_chars for char in proposed_value)
 
 def is_bool(val):
     if val == "":
