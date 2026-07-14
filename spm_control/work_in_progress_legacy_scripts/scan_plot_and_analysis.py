@@ -1,15 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import warnings
 import diptest
 
 #warnings.filterwarnings('ignore')
 
-def load_scan_data(distx, disty, res, scan_data_file):
+def load_scan_data(distx, disty, res, scan_data_file, show = False):
     # Read in data from 2D scan return files
-    lenx = int(round(distx / res)) + 1
-    leny = int(round(disty / res)) + 1
+    lenx = int((distx / res)) + 1
+    leny = int((disty / res)) + 1
 
     (xs, ys, zs, ch1_ints, ch2_ints, ts) = np.loadtxt(scan_data_file, dtype = float, delimiter=',', unpack=True)
 
@@ -18,7 +20,7 @@ def load_scan_data(distx, disty, res, scan_data_file):
     Ts = np.reshape(ts, (lenx, leny))
     CH1_ints = np.reshape(ch1_ints, (lenx, leny))
     CH2_ints = np.reshape(ch2_ints, (lenx, leny))
-    show = True
+    
 
     return Xs, Ys, Ts, CH1_ints, CH2_ints
 
@@ -122,8 +124,6 @@ def pos_error_stats(Xs, Ys, res, xlim, ylim):
 
     return mean, stdev
 
-
-
 def plot_channel_hists(Xs, Ys, Ch1_ints, Ch2_ints, normalize=False):
 
     fig, ax = plt.subplots(1,2,figsize=(10,5))
@@ -182,3 +182,47 @@ def hartigans_diptest(data):
 
     return diptest.diptest(data)
 
+def create_live_scan_plot(intensities, xlim, ylim, vmin, vmax, parent=None, norm="linear"):
+    if norm == "log":
+        norm_scale = mpl.colors.LogNorm(vmin=vmin, vmax=vmax)
+    else:
+        norm_scale = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+
+    if parent is None:
+        figure, axes = plt.subplots(figsize=(10, 7))
+        canvas = figure.canvas
+    else:
+        figure = Figure(figsize=(10, 7), dpi=100)
+        axes = figure.add_subplot(111)
+        canvas = FigureCanvasTkAgg(figure, master=parent)
+
+    image = axes.imshow(
+        intensities.T,
+        origin="lower",
+        norm=norm_scale,
+        extent=(*xlim, *ylim),
+        interpolation="none",
+        cmap="viridis",
+        aspect="equal",
+    )
+
+    axes.set_xlim(xlim)
+    axes.set_ylim(ylim)
+    axes.set_xlabel("X (µm)")
+    axes.set_ylabel("Y (µm)")
+
+    figure.colorbar(image, ax=axes, label="Intensity")
+
+    canvas.draw()
+
+    if parent is None:
+        plt.show(block=False)
+    else:
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    return figure, axes, image, canvas
+
+def update_live_scan_plot(live_plot, intensities):
+    figure, axes, image, canvas = live_plot
+    image.set_data(intensities.T)
+    canvas.draw_idle()

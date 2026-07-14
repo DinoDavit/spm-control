@@ -9,7 +9,7 @@ import os
 from PIL import Image
 from datetime import datetime
 
-from hydraharp_intensities2 import HH400_Histo_Manager
+from spm_control.work_in_progress_legacy_scripts.hydraharp_intensities import HH400_Histo_Manager
 import scan_plot_and_analysis as spa
 
 from pathlib import Path
@@ -91,9 +91,8 @@ STAGES =  stage_settings["STAGE_MODEL"] * stage_settings["NUM_AXES"]
 max_intensity0 = 0
 max_intensity1 = 0
 
-def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, predelay=0, autozero=False, send_email=False):
+def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, predelay=0, autozero=False, send_email=False, plot_parent=None):    
     """Connect, setup system and move stages and display the positions in a loop."""
-
     # major_axis_wait_time = 0.3 # seconds
     # minor_axis_wait_time = 0.14 # seconds
     major_axis_delay = stage_settings["major_axis_delay"] # seconds
@@ -137,7 +136,7 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
         time.sleep(predelay) # wait before starting scan
         print('Beginning scan...')
 
-        fig, ax1, img, axbackground = plotter(intensities, xlim, ylim, vmin, vmax)
+        live_plot = spa.create_live_scan_plot(intensities, xlim, ylim, vmin, vmax, parent=plot_parent)
         
         for i, x_pos in enumerate(xnodes):
             for j, y_pos in enumerate(ynodes):
@@ -174,12 +173,7 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
                 print('current pos: (%4.2f, %4.2f) ; Intensity: %d' % (x_pos, y_pos, (intensities[i,j])))
                 #max_intensity0 = max(intensity_ij[0], max_intensity0)
                 #max_intensity1 = max(intensity_ij[1], max_intensity1) 
-            img.set_data(intensities.T)
-            fig.canvas.restore_region(axbackground)
-            ax1.draw_artist(img)
-            fig.canvas.blit(ax1.bbox)
-            fig.canvas.flush_events()
-            
+                spa.update_live_scan_plot(live_plot, intensities)
             # TODO thread real time scan image
         
         # Return to Starting Position
