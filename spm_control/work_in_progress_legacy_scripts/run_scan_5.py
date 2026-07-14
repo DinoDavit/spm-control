@@ -11,7 +11,6 @@ from datetime import datetime
 
 from hydraharp_intensities2 import HH400_Histo_Manager
 import scan_plot_and_analysis as spa
-import auto_emailer as emailer
 
 from pathlib import Path
 import yaml
@@ -59,19 +58,19 @@ SPAD_WARNING_THRESH = 10**6
 tacq = 100 # ms #Deprecated in v5.0 and onwards
 
 email_address = 'spmnotif@gmail.com'
-send_email = 0
+send_email = False
 predelay = 0 # s
 show_plot = True
 intensity_histograms=False
 show_scan_stats = True
 require_user_input = False
-if scan["limit_plot"]:
-    vmin, vmax = scan["vmin"], scan["vmax"]
+if scan_settings["limit_plot"]:
+    vmin, vmax = scan_settings["vmin"], scan_settings["vmax"]
 # naming convention
 
 today = datetime.today().strftime('%Y-%m-%d')
 print(today)
-folder_path = Path(scan["folder_path"]) / today
+folder_path = Path(scan_settings["folder_path"]) / today
 if not os.path.isdir(folder_path):
     os.mkdir(folder_path)
 
@@ -262,7 +261,7 @@ if __name__ == '__main__':
 
     # Send Email
     if send_email:
-
+        import auto_emailer as emailer
         message = "\n\nThe scan, '{}', has finished. The plot is attached.\n\nCordially,\nS.P. Microscope".format(scan_name)
         subject = 'SPM Scan Finished: {}'.format(scan_name)
         attachment = '{}.png'.format(plot_name_root)
