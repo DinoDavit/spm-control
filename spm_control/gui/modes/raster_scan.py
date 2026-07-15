@@ -84,6 +84,29 @@ class Scan_Page():
         p.entries["x_min"], p.entries["x_max"] = page_helpers.createRangeInput(p.first_row, "X:")
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.6, 0.05])
         p.entries["y_min"], p.entries["y_max"] = page_helpers.createRangeInput(p.second_row, "Y:")
+    
+    def OpenFolderMenu(self):
+        p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
+        p.entries = {}
+
+        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        Scan_Data = ""
+
+        p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
+        p.title_frame.pack_propagate = False
+        p.title = page_helpers.createLabel(p.title_frame, "Folder Menu", sz=24, side="top", y_space=(4, 4))
+
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.7, 0.05])
+        p.entries["filter_name"] = page_helpers.createSingleEntry(p.first_row, "Filter", numbered_entry=False, placeholder="e.g. g2")
+
+        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.7, 0.05])
+        p.entries["extension"] = page_helpers.createSingleEntry(p.second_row, "Extension", numbered_entry=False, placeholder="e.g. txt")
+
+        page_helpers.bind_entry(p.entries["filter_name"], min_val=None, max_val=None)
+        page_helpers.bind_entry(p.entries["extension"], min_val=None, max_val=None, nextE=p.entries["extension"])
+
+        p.last_row = page_helpers.createFrame(p, "third_row", [0.3, 0.8, 0.4, 0.05])
+        p.Select_Folder = page_helpers.createButton(p.last_row, "Select File", 5, lambda: config.update(p.entries, "folder_path", Scan_Config))
 
     
     def build_mode_ops(self):
@@ -92,7 +115,7 @@ class Scan_Page():
             "run": self.OpenRunMenu,
             "filter": self.OpenFilterMenu,
             "magnification": self.OpenZoomMenu,
-            # "calendar": self.OpenCalendarMenu,
+            "folders": self.OpenFolderMenu,
         }
         button_size = 0.08
 

@@ -4,6 +4,8 @@ from PIL import Image
 from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
+from tkinter import filedialog
+
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
@@ -131,13 +133,13 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
 
 def createButton(parent, name, cRad, func):
     button = ctk.CTkButton(
-        master = parent,
-        text = name,
-        command = func,
+        master=parent,
+        text=name,
+        command=func,
         corner_radius=cRad
     )
 
-    button.pack(expand = True, anchor = "center")
+    button.pack(fill="both", expand=True)
 
     return button
 
@@ -248,11 +250,16 @@ def createSingleEntry(
     max_val=None,
     config_key=None,
     multi = 0,
+    numbered_entry = True,
 ):
     name = name.rstrip(":")
     config_key = config_key or name
 
-    vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
+    if numbered_entry:
+        vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
+    else:
+        vcmd = (parent.register(check.validate_non_numeric_typing), "%P", name)
+        print("WE SHOULD HAVE 2")
 
     label = createLabel(
         parent,
@@ -328,4 +335,43 @@ def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=Fa
                 multiple=multi)
                 )
     else:
-        print("Will expand this to accept text entries of certain formats potentially")
+        entry.bind("<Return>", lambda event: check.within_range(
+                entry, 
+                min_val, 
+                max_val, 
+                multiple=multi)
+                )
+
+
+def open_file_menu(folder_path=None):
+    """
+    Open the system file-selection window and return the selected file path.
+
+    Parameters
+    ----------
+    folder_path : str | Path | None
+        Folder that the file-selection window should open inside.
+
+    Returns
+    -------
+    str | None
+        Selected file path, or None if the user cancels.
+    """
+
+    initial_directory = None
+
+    if folder_path is not None:
+        folder_path = Path(folder_path).expanduser()
+
+        if folder_path.is_dir():
+            initial_directory = str(folder_path)
+
+    selected_file = filedialog.askopenfilename(
+        title="Open File",
+        initialdir=initial_directory
+    )
+
+    if not selected_file:
+        return None
+
+    return selected_file
