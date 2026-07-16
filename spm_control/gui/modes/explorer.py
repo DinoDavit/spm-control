@@ -18,8 +18,8 @@ class Explorer_Page:
         }
 
         self.panels = app.panels
-        page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels)
-        time.sleep(0.01)
+        page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels, notMain=True)
+        time.sleep(0.05)
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
         self.app = app
@@ -54,32 +54,44 @@ class Explorer_Page:
 
     def CreateFileDisplay(self):
         p = self.panels["file_display"]
+        p.path_display = page_helpers.createFrame(p, "path_display", [0, 0, 1, 0.5], outline=True)
 
-        p.path_entry = ctk.CTkEntry(p, placeholder_text="Selected file path")
-        p.path_entry.pack(fill="x", padx=10, pady=10)
+        p.path_entry = ctk.CTkEntry(p.path_display, placeholder_text="Selected file path")
+        p.path_entry.pack(fill="both", expand=True, padx=3, pady=3)
+        p.path_entry.configure(state="readonly")
 
     def select_and_display_file(self):
         p = self.panels["option_parameters"]
 
-        filter_name = p.entries["filter_name"].get().strip().lower()
+        filter_name = p.entries["filter_name"].get().strip()
         extension = p.entries["extension"].get().strip().lstrip(".")
 
         if extension:
-            filetypes = [(f"{extension.upper()} files", f"*.{extension}"), ("All files", "*.*")]
+            filetypes = [
+                (f"{extension.upper()} files", f"*.{extension}"),
+                ("All files", "*.*")
+            ]
         else:
             filetypes = [("All files", "*.*")]
 
-        selected_file = filedialog.askopenfilename(title="Open File", filetypes=filetypes)
+        selected_file = filedialog.askopenfilename(
+            title="Open File",
+            filetypes=filetypes
+        )
 
         if not selected_file:
             return
 
-        if filter_name and filter_name not in Path(selected_file).name.lower():
+        file_name = Path(selected_file).name
+
+        if filter_name and filter_name.casefold() not in file_name.casefold():
             return
 
         file_panel = self.panels["file_display"]
+        file_panel.path_entry.configure(state="normal")
         file_panel.path_entry.delete(0, "end")
         file_panel.path_entry.insert(0, selected_file)
+        file_panel.path_entry.configure(state="readonly")
 
         display(self.panels["mode_display"], selected_file)
 

@@ -16,7 +16,7 @@ class Scan_Page():
         self.panels = app.panels
 
         page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels, notMain=True)
-        time.sleep(0.01)  # Wait for the panels to be reloaded before loading required panels
+        time.sleep(0.05)  # Wait for the panels to be reloaded before loading required panels
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
         self.app = app

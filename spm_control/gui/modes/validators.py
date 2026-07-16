@@ -66,8 +66,8 @@ def is_bool(val):
     # allow only booleans
     return val.isboolean()
 
-def validate_non_numeric_typing(proposed_value, typed_char):
+def validate_typing(proposed_value, typed_char):
     if proposed_value == "":
         return True
 
-    return not any(char.isdigit() for char in proposed_value)
+    return True

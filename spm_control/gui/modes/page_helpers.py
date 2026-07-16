@@ -255,7 +255,7 @@ def createSingleEntry(
     if numbered_entry:
         vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
     else:
-        vcmd = (parent.register(check.validate_non_numeric_typing), "%P", name)
+        vcmd = (parent.register(check.validate_typing), "%P", name)
 
     label = createLabel(
         parent,
@@ -338,3 +338,5 @@ def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=Fa
                 multiple=multi)
                 )
 
+def get_file(panels):
+    return panels["file_display"].path_entry.get()
