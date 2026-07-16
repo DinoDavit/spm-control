@@ -4,8 +4,6 @@ from PIL import Image
 from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
-from tkinter import filedialog
-
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
@@ -41,7 +39,6 @@ def create_panel(parent, name, dims):
 def reload_panel(panels, layout, panel_name):
     old_panel = panels[panel_name]
     parent = old_panel.master
-
     old_panel.destroy()
 
     new_panel = create_panel(parent, panel_name,layout[panel_name])
@@ -50,14 +47,14 @@ def reload_panel(panels, layout, panel_name):
     return new_panel
 
 
-def reload_panels(panels, layout, panel_names):
+def reload_panels(panels, layout, panel_names, notMain = False):
     """
     Destroy and recreate multiple panels.
     """
-
+    if (notMain == True):
+        panel_names.remove("mode_display")
     for panel_name in panel_names:
-        app = panels[panel_name].master
-        reload_panel(app, panels, layout, panel_name)
+        reload_panel(panels, layout, panel_name)
 
     return panels
 
@@ -259,7 +256,6 @@ def createSingleEntry(
         vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
     else:
         vcmd = (parent.register(check.validate_non_numeric_typing), "%P", name)
-        print("WE SHOULD HAVE 2")
 
     label = createLabel(
         parent,
@@ -342,36 +338,3 @@ def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=Fa
                 multiple=multi)
                 )
 
-
-def open_file_menu(folder_path=None):
-    """
-    Open the system file-selection window and return the selected file path.
-
-    Parameters
-    ----------
-    folder_path : str | Path | None
-        Folder that the file-selection window should open inside.
-
-    Returns
-    -------
-    str | None
-        Selected file path, or None if the user cancels.
-    """
-
-    initial_directory = None
-
-    if folder_path is not None:
-        folder_path = Path(folder_path).expanduser()
-
-        if folder_path.is_dir():
-            initial_directory = str(folder_path)
-
-    selected_file = filedialog.askopenfilename(
-        title="Open File",
-        initialdir=initial_directory
-    )
-
-    if not selected_file:
-        return None
-
-    return selected_file

@@ -1,4 +1,5 @@
 from spm_control.gui.modes.raster_scan import Scan_Page
+from spm_control.gui.modes.explorer import Explorer_Page
 import customtkinter as ctk
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
@@ -28,7 +29,7 @@ class Application(ctk.CTk):
             "scan": self.OpenScanMenu,
             # "filter": self.OpenFilterMenu,
             # "magnification": self.OpenZoomMenu,
-            # "calendar": self.OpenCalendarMenu,
+            "folders": self.OpenExplorerMenu,
         }
 
         button_size = 0.125
@@ -42,6 +43,8 @@ class Application(ctk.CTk):
 
     def OpenScanMenu(self):
         self.raster_scan_page = Scan_Page(self)
+    def OpenExplorerMenu(self):
+        self.Explorer_page = Explorer_Page(self)
 
         
 
