@@ -1,9 +1,5 @@
 import yaml
 import re
-import sys
-import subprocess
-import sys
-from pathlib import Path
 
 def parse_config_value(raw_value):
     # Because value is correct from the validators.py
@@ -28,7 +24,7 @@ def parse_config_value(raw_value):
     return raw_value
 
 
-def update(updates, branch_name, file_name, demo=False):
+def update(updates, branch_name, file_name, nextCall = None):
     with open(file_name, "r") as f:
         doc = yaml.safe_load(f) or {}
 
@@ -38,11 +34,6 @@ def update(updates, branch_name, file_name, demo=False):
 
     with open(file_name, "w") as f:
         yaml.safe_dump(doc, f, sort_keys=False)
-
-    if demo:
-        run_scan_file = ""
-
-        subprocess.Popen(
-        [sys.executable, str(run_scan_file)],
-        cwd=str(run_scan_file.parent),
-    )
+        
+    if (nextCall):
+        nextCall()

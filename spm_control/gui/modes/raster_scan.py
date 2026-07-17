@@ -3,7 +3,10 @@ from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
 from spm_control.gui.layout import MAIN_LAYOUT
 import time
+from spm_control.work_in_progress_legacy_scripts import filter_scan
 from pathlib import Path
+import sys
+import subprocess
 
 
 class Scan_Page():
@@ -52,24 +55,40 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, demo=True))
+        def demo():
+            run_scan_file = ""
+
+            subprocess.Popen(
+            [sys.executable, str(run_scan_file)],
+            cwd=str(run_scan_file.parent),)
+
+        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=lambda: (demo())))
 
     def OpenFilterMenu(self):
         ch = 0
-        def process_file(current_file):
-            if ("ch2" in current_file.lower()):
-                ch = 2
-            elif ("ch1" in current_file.lower()):
-                ch = 1
-            
-            file_path = Path(page_helpers.get_file(self.panels))
-            folder_path = file_path.parent
+        file_path = page_helpers.get_file(self.panels)
 
+        path = Path(file_path)
+        stem = path.stem
+
+        if stem.endswith("_scan_data"):
+            base = stem.removesuffix("_scan_data")
+        elif stem.endswith("_ch1"):
+            base = stem.removesuffix("_ch1")
+            ch = 1
+        elif stem.endswith("_ch2"):
+            base = stem.removesuffix("_ch2")
+            ch = 2
+        else:
+            base = stem
+
+        data_path = path.parent / f"{base}_scan_data.txt"
 
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
 
         Scan_Data = page_helpers.get_file(self.panels)
+        Scan_Config = ""
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -81,9 +100,27 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True)
         page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1)
 
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+        def display_filtered_scan(main_display, file_path, channel):
+            for widget in main_display.winfo_children():
+                widget.destroy()
+
+            fig = filter_scan(file_path, channel)
+
+            canvas = FigureCanvasTkAgg(fig, master=main_display)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+
+            main_display.scan_canvas = canvas
+            main_display.scan_figure = fig
+        
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, lambda: config.update())
-    
+        p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, 
+                                             lambda: config.update(p.entries, "scan", Scan_Config, nextCall = 
+                                                                   lambda: display_filtered_scan(self.panels["main_display"], data_path, ch)))
+
+
     def OpenZoomMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
