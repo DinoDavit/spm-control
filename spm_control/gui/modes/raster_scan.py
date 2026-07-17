@@ -7,6 +7,8 @@ from spm_control.work_in_progress_legacy_scripts import filter_scan
 from pathlib import Path
 import sys
 import subprocess
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 
 class Scan_Page():
@@ -88,7 +90,7 @@ class Scan_Page():
         p.entries = {}
 
         Scan_Data = page_helpers.get_file(self.panels)
-        Scan_Config = ""
+        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -106,7 +108,12 @@ class Scan_Page():
             for widget in main_display.winfo_children():
                 widget.destroy()
 
-            fig = filter_scan(file_path, channel)
+            old_figure = getattr(main_display, "scan_figure", None)
+
+            if old_figure is not None:
+                plt.close(old_figure)
+
+            fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
 
             canvas = FigureCanvasTkAgg(fig, master=main_display)
             canvas.draw()
@@ -118,7 +125,7 @@ class Scan_Page():
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, 
                                              lambda: config.update(p.entries, "scan", Scan_Config, nextCall = 
-                                                                   lambda: display_filtered_scan(self.panels["main_display"], data_path, ch)))
+                                                                   lambda: display_filtered_scan(self.panels["mode_display"], data_path, ch)))
 
 
     def OpenZoomMenu(self):

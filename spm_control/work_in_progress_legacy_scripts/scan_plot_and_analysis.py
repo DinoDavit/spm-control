@@ -4,23 +4,39 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import warnings
-import diptest
+#import diptest
 
 #warnings.filterwarnings('ignore')
 
-def load_scan_data(distx, disty, res, scan_data_file, show = False):
-    # Read in data from 2D scan return files
-    lenx = int((distx / res)) + 1
-    leny = int((disty / res)) + 1
+def load_scan_data(scan_data_file):
+    xs, ys, zs, ch1_ints, ch2_ints, ts = np.loadtxt(
+        scan_data_file,
+        dtype=float,
+        delimiter=",",
+        unpack=True
+    )
 
-    (xs, ys, zs, ch1_ints, ch2_ints, ts) = np.loadtxt(scan_data_file, dtype = float, delimiter=',', unpack=True)
+    y_resets = np.where(np.diff(ys) < 0)[0]
 
-    Xs = np.reshape(xs, (lenx, leny))
-    Ys = np.reshape(ys, (lenx, leny))
-    Ts = np.reshape(ts, (lenx, leny))
-    CH1_ints = np.reshape(ch1_ints, (lenx, leny))
-    CH2_ints = np.reshape(ch2_ints, (lenx, leny))
-    
+    if len(y_resets) > 0:
+        len_y = y_resets[0] + 1
+    else:
+        len_y = len(ys)
+
+    if len(xs) % len_y != 0:
+        raise ValueError(
+            f"Cannot determine scan shape from {len(xs)} points. "
+            f"Detected {len_y} Y positions per row."
+        )
+
+    len_x = len(xs) // len_y
+    shape = (len_x, len_y)
+
+    Xs = xs.reshape(shape)
+    Ys = ys.reshape(shape)
+    Ts = ts.reshape(shape)
+    CH1_ints = ch1_ints.reshape(shape)
+    CH2_ints = ch2_ints.reshape(shape)
 
     return Xs, Ys, Ts, CH1_ints, CH2_ints
 
@@ -53,8 +69,6 @@ def plot_int_heatmap(Xs, Ys, channel_ints, size=(8, 8), save=False, save_name='s
     if save:
         fig.savefig(save_name, dpi=300, bbox_inches="tight")
 
-    if show:
-        plt.show()
 
     return fig, ax, plot
 
