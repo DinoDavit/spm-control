@@ -3,6 +3,8 @@ from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
 from spm_control.gui.layout import MAIN_LAYOUT
 import time
+from pathlib import Path
+
 
 class Scan_Page():
     def __init__(self, app):
@@ -53,11 +55,21 @@ class Scan_Page():
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, demo=True))
 
     def OpenFilterMenu(self):
+        ch = 0
+        def process_file(current_file):
+            if ("ch2" in current_file.lower()):
+                ch = 2
+            elif ("ch1" in current_file.lower()):
+                ch = 1
+            
+            file_path = Path(page_helpers.get_file(self.panels))
+            folder_path = file_path.parent
+
+
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
 
-        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
-        Scan_Data = ""
+        Scan_Data = page_helpers.get_file(self.panels)
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -70,7 +82,7 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, lambda: config.update(p.entries, "intensities", Scan_Config))
+        p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, lambda: config.update())
     
     def OpenZoomMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")

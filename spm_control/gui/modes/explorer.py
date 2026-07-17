@@ -56,7 +56,7 @@ class Explorer_Page:
         p = self.panels["file_display"]
         p.path_display = page_helpers.createFrame(p, "path_display", [0, 0, 1, 0.5], outline=True)
 
-        p.path_entry = ctk.CTkEntry(p.path_display, placeholder_text="Selected file path")
+        p.path_entry = ctk.CTkEntry(p.path_display, placeholder_text="Selected file path", text_color="#67E8F9")
         p.path_entry.pack(fill="both", expand=True, padx=3, pady=3)
         p.path_entry.configure(state="readonly")
 
