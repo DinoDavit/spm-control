@@ -42,8 +42,8 @@ def create_filtered_scan_plot(file_path, channel):
         origin="lower",
         extent=(Xs.min(), Xs.max(), Ys.min(), Ys.max()),
         cmap=cmap,
-        vmin=intensity_min,
-        vmax=intensity_max,
+        vmin=lower,
+        vmax=upper,
         interpolation="none",
         aspect="equal"
     )

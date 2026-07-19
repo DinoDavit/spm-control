@@ -103,7 +103,7 @@ class Scan_Page():
         p.entries["intensity_min"], p.entries["intensity_max"] = page_helpers.createRangeInput(p.first_row, "Intensity:")
 
         page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True, emptyOk=True)
-        page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1)
+        page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1, emptyOk=True)
 
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
