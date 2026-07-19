@@ -25,18 +25,17 @@ def create_filtered_scan_plot(file_path, channel):
         intensities = ch1 + ch2
     else:
         raise ValueError("Channel must be 0, 1, or 2.")
+    
+    lower = np.min(intensities) if intensity_min in ("", None) else float(intensity_min)
+    upper = np.max(intensities) if intensity_max in ("", None) else float(intensity_max)
 
-    filtered = np.ma.masked_outside(
-        intensities,
-        intensity_min,
-        intensity_max
-    )
+    filtered = np.ma.masked_outside(intensities, lower, upper)
 
     fig = Figure(figsize=(6, 5), dpi=100)
     ax = fig.add_subplot(111)
 
     cmap = copy(cm.viridis)
-    cmap.set_bad("white")
+    cmap.set_bad(color="#303030")
 
     plot = ax.imshow(
         filtered.T,

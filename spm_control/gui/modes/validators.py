@@ -5,38 +5,42 @@ import re
 def clamp(value, min_val, max_val):
     return max(min_val, min(value, max_val))
 
-def within_range(entry, min_val, max_val, next_entry = None, multiple = 0, EnterKey=True, ranged_input=False):
-    if (not min_val and not max_val):
-        entry.configure(border_color = "green")
-        if (next_entry):
+def within_range(entry, min_val, max_val, next_entry=None, multiple=0, EnterKey=True, ranged_input=False, emptyOk=False):
+    if emptyOk and is_empty(entry.get()):
+        entry.configure(border_color="green")
+        return
+
+    if not min_val and not max_val:
+        entry.configure(border_color="green")
+        if next_entry:
             next_entry.focus_set()
-        elif(EnterKey):
+        elif EnterKey:
             entry.master.focus_set()
     else:
         raw_val = float(entry.get())
 
-        if (ranged_input and not is_empty(next_entry.get())):
+        if ranged_input and not is_empty(next_entry.get()):
             raw_val2 = float(next_entry.get())
             min_val = min(min_val, raw_val2)
+
         clamped_val = clamp(raw_val, min_val, max_val)
 
-        if (clamped_val != raw_val):
+        if clamped_val != raw_val:
             entry.delete(0, "end")
-            entry.configure(border_color = "red")
+            entry.configure(border_color="red")
             entry.insert(0, str(clamped_val))
 
-        elif (multiple and clamped_val % multiple !=0 and str(clamped_val)[-2:]!=".0"):
+        elif multiple and clamped_val % multiple != 0 and str(clamped_val)[-2:] != ".0":
             entry.delete(0, "end")
-            entry.configure(border_color = "red")
+            entry.configure(border_color="red")
             entry.insert(0, str(round(clamped_val / multiple) * multiple))
-        
+
         else:
-            entry.configure(border_color = "green")
+            entry.configure(border_color="green")
 
-            if (next_entry):
+            if next_entry:
                 next_entry.focus_set()
-
-            elif(EnterKey):
+            elif EnterKey:
                 entry.master.focus_set()
 
 def is_empty(raw_val):

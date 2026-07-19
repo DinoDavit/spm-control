@@ -102,12 +102,13 @@ class Scan_Page():
         p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.7, 0.05])
         p.entries["intensity_min"], p.entries["intensity_max"] = page_helpers.createRangeInput(p.first_row, "Intensity:")
 
-        page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True)
+        page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True, emptyOk=True)
         page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1)
 
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
         def display_filtered_scan(main_display, file_path, channel):
+
             for widget in main_display.winfo_children():
                 widget.destroy()
 

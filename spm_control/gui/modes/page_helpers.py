@@ -314,7 +314,7 @@ def createLabel(
 
     return label
 
-def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=False):
+def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=False, emptyOk = False):
     if (min_val or max_val):
             entry.bind("<FocusOut>", lambda event: check.within_range(
                 entry, 
@@ -323,21 +323,24 @@ def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=Fa
                 multiple = multi, 
                 ranged_input=ranged,
                 next_entry = nextE,
-                EnterKey=False)
+                EnterKey=False,
+                emptyOk = emptyOk),
                 )
             
             entry.bind("<Return>", lambda event: check.within_range(
                 entry, 
                 min_val, 
                 max_val, 
-                multiple=multi)
+                multiple=multi,
+                emptyOk = emptyOk),
                 )
     else:
         entry.bind("<Return>", lambda event: check.within_range(
                 entry, 
                 min_val, 
                 max_val, 
-                multiple=multi)
+                multiple=multi,
+                emptyOk = emptyOk),
                 )
 
 def get_file(panels):
