@@ -58,7 +58,8 @@ class Scan_Page():
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         def demo():
-            run_scan_file = ""
+            
+            run_scan_file = Path(__file__).resolve().parents[2] / "work_in_progress_legacy_scripts" / "run_scan_5.py"
 
             subprocess.Popen(
             [sys.executable, str(run_scan_file)],
@@ -82,6 +83,8 @@ class Scan_Page():
             base = stem.removesuffix("_ch2")
             ch = 2
         else:
+            if ("run" not in stem):
+                page_helpers.throwError("Please select a valid raster scan file.")
             base = stem
 
         data_path = path.parent / f"{base}_scan_data.txt"

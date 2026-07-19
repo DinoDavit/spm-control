@@ -4,6 +4,8 @@ from PIL import Image
 from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
+from tkinter import messagebox
+
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
@@ -102,7 +104,7 @@ def createFrame(parent, name, dimensions, outline = False):
 
 def createToolbar(parent, loadout, button_size, horizontal=True):
     parent.options = {}
-    assets = "/Users/davitmoreno/Downloads/Compressed/spm_control/gui/assets/"
+    assets = Path(__file__).resolve().parent.parent / "assets"
 
     for i, (name, command) in enumerate(loadout.items()):
         if (horizontal):
@@ -119,7 +121,7 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
 
         button = createButtonDisplay(
             frame,
-            f"{assets}{name}.png",
+            str(assets / f"{name}.png"),
             command,
         )
 
@@ -340,3 +342,6 @@ def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=Fa
 
 def get_file(panels):
     return panels["file_display"].path_entry.get()
+
+def throwError(message):
+    messagebox.showerror("Error", message)

@@ -35,5 +35,5 @@ def update(updates, branch_name, file_name, nextCall = None):
     with open(file_name, "w") as f:
         yaml.safe_dump(doc, f, sort_keys=False)
         
-    if (nextCall):
+    if (nextCall is not None):
         nextCall()
