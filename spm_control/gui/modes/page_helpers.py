@@ -345,3 +345,38 @@ def get_file(panels):
 
 def throwError(message):
     messagebox.showerror("Error", message)
+
+def displayImage(frame, image_source):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    original = Image.open(image_source) if isinstance(image_source, (str, Path)) else image_source.copy()
+
+    label = ctk.CTkLabel(frame, text="")
+    label.pack(fill="both", expand=True)
+
+    def resize(event):
+        if event.width <= 1 or event.height <= 1:
+            return
+
+        image = original.copy()
+        image.thumbnail((event.width, event.height))
+
+        ctk_image = ctk.CTkImage(
+            light_image=image,
+            dark_image=image,
+            size=image.size
+        )
+
+        label.configure(image=ctk_image)
+        label.image = ctk_image
+
+    frame.bind("<Configure>", resize)
+    frame.after_idle(lambda: resize(
+        type("Event", (), {
+            "width": frame.winfo_width(),
+            "height": frame.winfo_height()
+        })()
+    ))
+
+    return label

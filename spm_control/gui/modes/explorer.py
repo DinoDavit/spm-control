@@ -103,20 +103,10 @@ def display(panel, file_path):
     extension = Path(file_path).suffix.lower()
 
     if extension == ".png":
-        display_png(panel, file_path)
+        mini_display = page_helpers.createFrame(panel, "mini_display", [0.1, 0.005, 0.8, 0.99], outline=True)
+        page_helpers.displayImage(mini_display, file_path)
     elif extension == ".txt":
         display_txt(panel, file_path)
-
-
-def display_png(panel, file_path):
-    image = Image.open(file_path)
-    image.thumbnail((700, 700))
-
-    ctk_image = ctk.CTkImage(light_image=image, dark_image=image, size=image.size)
-
-    image_label = ctk.CTkLabel(panel, text="", image=ctk_image)
-    image_label.image = ctk_image
-    image_label.pack(expand=True)
 
 
 def display_txt(panel, file_path):

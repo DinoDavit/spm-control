@@ -34,7 +34,7 @@ class Scan_Page():
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
-        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        Scan_Config = Path(__file__).resolve().parents[3] / "config_files" / "scan.yaml"
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -93,7 +93,7 @@ class Scan_Page():
         p.entries = {}
 
         Scan_Data = page_helpers.get_file(self.panels)
-        Scan_Config = "/Users/davitmoreno/Downloads/Compressed/config_files/scan.yaml"
+        Scan_Config = Path(__file__).resolve().parents[3] / "config_files" / "scan.yaml"
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -115,10 +115,11 @@ class Scan_Page():
 
             if old_figure is not None:
                 plt.close(old_figure)
-
             fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
 
-            canvas = FigureCanvasTkAgg(fig, master=main_display)
+            mini_display = page_helpers.createFrame(main_display, "mini_display", [0.1, 0.005, 0.8, 0.99], outline=True)
+
+            canvas = FigureCanvasTkAgg(fig, master=mini_display)
             canvas.draw()
             canvas.get_tk_widget().pack(fill="both", expand=True)
 

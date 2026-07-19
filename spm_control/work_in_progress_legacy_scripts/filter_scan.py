@@ -32,7 +32,7 @@ def create_filtered_scan_plot(file_path, channel):
         intensity_max
     )
 
-    fig = Figure(figsize=(7, 7), dpi=100)
+    fig = Figure(figsize=(6, 5), dpi=100)
     ax = fig.add_subplot(111)
 
     cmap = copy(cm.viridis)
