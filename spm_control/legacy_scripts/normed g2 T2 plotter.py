@@ -3,7 +3,7 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import os
 
-os.chdir(r"C:\Users\spmno\OneDrive\Documents\spm\Intensity Traces\2024-08-27\2024-08-27 Dot1 T2 15min.g2.run")
+os.chdir(r"C:\Users\spmno\OneDrive\Documents\spm\Scan\Scan Data\2026-07-13\Scan16_X48.8Y86.2Z10.9_Sync1e6_0.224uW_10min.ptu.g2.run")
 importt2 = 1
 normalize = 0
 # Import t2 data        

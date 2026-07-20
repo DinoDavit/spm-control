@@ -30,9 +30,9 @@ import spm_control.config as config
 # xlim = (point[0]-change, point[0] +change) # µm
 # ylim = (point[1]-change, point[1]+change) # µm
 
-scan_settings = config.load_scan_settings()
+scan_settings = config.load_scan_config()
 stage_settings = config.load_stage_config()
-motion_settings = config.load_piezo_motion()
+motion_settings = config.load_piezo_motion_config()
 sync_settings = config.load_sync_config()
 
 def get_exp_num(folder_path, suff):
@@ -85,7 +85,8 @@ scan_name = '{}_{}'.format(today, experiment_title)
 
 # Specify controller and the stages to be connected to this controller.
 CONTROLLER_NAME = stage_settings["CONTROLLER_NAME"]
-STAGES =  stage_settings["STAGE_MODEL"] * stage_settings["NUM_AXES"]
+#STAGES =  [stage_settings["STAGE_MODEL"] * stage_settings["NUM_AXES"]]
+STAGES = ['P-517.3CD', 'P-517.3CD', 'P-517.3CD']
 # connect stages to axes across # of dimensions 
 
 max_intensity0 = 0
@@ -95,8 +96,8 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
     """Connect, setup system and move stages and display the positions in a loop."""
     # major_axis_wait_time = 0.3 # seconds
     # minor_axis_wait_time = 0.14 # seconds
-    major_axis_delay = stage_settings["major_axis_delay"] # seconds
-    minor_axis_delay = stage_settings["minor_axis_delay"] # seconds
+    major_axis_delay = motion_settings["major_axis_delay"] # seconds
+    minor_axis_delay = motion_settings["minor_axis_delay"] # seconds
     
     # scan points in x and y [x0, xf] x [y0, yf] (um); z is fixed;
     xnodes = np.linspace(xlim[0], xlim[1], int((xlim[1]-xlim[0])/resolution) + 1).round(decimals=3) # x coordinates [0, distx] (um)
@@ -118,7 +119,7 @@ def run_scan(xlim, ylim, z_focus, resolution, tacq, save_file, vmin, vmax, prede
     with GCSDevice(CONTROLLER_NAME) as pidevice, HH400_Histo_Manager(mode=0,send_error_email = send_email) as HH400, open(save_file, 'w') as scan_data_file:
         ########## Connect to and Initialize Piezo ##########
         pidevice.ConnectUSB(serialnum=stage_settings["SERIAL_NUM"])
-        pitools.startup(pidevice, stages=STAGES, refmodes=None)
+        pitools.startup(pidevice, stages=None, refmodes=None)
         if autozero:
             pidevice.ATZ() # autozero
             pitools.waitonautozero(pidevice)

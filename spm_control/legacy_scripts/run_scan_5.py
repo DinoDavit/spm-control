@@ -37,10 +37,10 @@ def get_exp_num(folder_path, suff):
             most_recent = max(int(num), most_recent)
     return most_recent + 1
 
-z_focus = 11.5 # µm (0 - 20)
-xlim = (30, 70) # µm (0 - 100)
-ylim = (20, 60) # µm (0 - 100)
-resolution = .5 # um (>= 0.2) diffraction limit ~200 nm (.2)
+z_focus = 8.8 #µm (0 - 20)
+xlim = (70, 75) # µm (0 - 100)
+ylim = (59, 64) # µm (0 - 100)
+resolution = .2 # um (>= 0.2) diffraction limit ~200 nm (.2)
 SPAD_Warning_Thresh = 10**6
 
 #    THESE ARE ONLY PARAMETERS YOU NEED TO CHANGE
