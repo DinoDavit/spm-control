@@ -26,18 +26,3 @@ def load_named_settings(name, path):
     with open(path, "r") as file:
         config = yaml.safe_load(file)
     return config[name]
-
-def load_stage_config():
-    return load_named_settings("stage", HARDWARE_CONFIG)
-
-def load_piezo_motion_config():
-    return load_named_settings("piezo_scan_motion", HARDWARE_CONFIG)
-
-def load_hydraharp_config():
-    return load_named_settings("hydraharp", HARDWARE_CONFIG)
-
-def load_sync_config():
-    return load_named_settings("sync", HARDWARE_CONFIG)
-
-def load_scan_config():
-    return load_named_settings("scan", SCAN_CONFIG)
