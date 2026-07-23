@@ -49,8 +49,7 @@ def run_raster_scan(stage, detector, stop_event):
             time.sleep(major_delay if j == 0 else minor_delay)
 
             real_position = stage.position()
-            acquisition_ms = scan.get("acquisition_ms", 100)
-            counts = detector.integrate_counts(acquisition_ms)
+            counts = detector.poll_counts()
 
             if len(counts) < 2:
                 raise RuntimeError(f"HydraHarp returned fewer than two channels: {counts}")
