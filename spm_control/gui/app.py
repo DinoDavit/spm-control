@@ -1,7 +1,9 @@
 from spm_control.gui.modes.scan import Scan_Page
 from spm_control.gui.modes.explorer import Explorer_Page
 from spm_control.gui.modes.machine_learning import ML_Page
+
 import customtkinter as ctk
+
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
 

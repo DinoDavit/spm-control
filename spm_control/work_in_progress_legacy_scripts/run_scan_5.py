@@ -11,11 +11,9 @@ from datetime import datetime
 
 from spm_control.work_in_progress_legacy_scripts.hydraharp_intensities import HH400_Histo_Manager
 from spm_control.work_in_progress_legacy_scripts import scan_plot_and_analysis as spa
+import spm_control.config as config
 
 from pathlib import Path
-import yaml
-
-import spm_control.config as config
 
 # Moving to (38.8, 37.3, 0)...
 # Max intensity z positions (Sum, CH1, CH2): 10.099177, 11.599177, 10.399177

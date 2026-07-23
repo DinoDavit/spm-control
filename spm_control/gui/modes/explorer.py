@@ -3,7 +3,6 @@ from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
 from pathlib import Path
 from tkinter import filedialog
-from PIL import Image
 import customtkinter as ctk
 import time
 

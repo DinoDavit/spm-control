@@ -2,13 +2,12 @@ from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
 from spm_control.gui.layout import MAIN_LAYOUT
 from spm_control.work_in_progress_legacy_scripts import filter_scan
-from spm_control.scan.raster_manager import raster_manager
+from spm_control.scan.raster_manager import RasterManager
 
 import matplotlib.pyplot as plt
 from pathlib import Path
 
 import time
-import threading
 
 
 class Scan_Page():
@@ -57,19 +56,14 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
+        self.raster_manager = RasterManager()
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
 
     def start_scan(self):
-        if getattr(self, "scan_thread", None) and self.scan_thread.is_alive():
-            page_helpers.throwError("Scan is already running.")
-            return
-
-        self.stop_scan_event = threading.Event()
-
-        self.scan_thread = threading.Thread(
-            target=self.run_scan_worker,
-            daemon=True
-        )
+        try:
+            self.raster_manager.start()
+        except RuntimeError as error:
+            page_helpers.throwError(str(error))
 
         self.scan_thread.start()
 
