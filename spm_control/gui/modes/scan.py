@@ -1,14 +1,14 @@
-import sys
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
 from spm_control.gui.layout import MAIN_LAYOUT
-import time
 from spm_control.work_in_progress_legacy_scripts import filter_scan
-from pathlib import Path
-import sys
-import subprocess
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from spm_control.scan.raster_manager import raster_manager
+
 import matplotlib.pyplot as plt
+from pathlib import Path
+
+import time
+import threading
 
 
 class Scan_Page():
@@ -57,15 +57,32 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        def demo():
-            
-            run_scan_file = Path(__file__).resolve().parents[2] / "work_in_progress_legacy_scripts" / "run_scan_5.py"
+        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
 
-            subprocess.Popen(
-            [sys.executable, str(run_scan_file)],
-            cwd=str(run_scan_file.parent),)
+    def start_scan(self):
+        if getattr(self, "scan_thread", None) and self.scan_thread.is_alive():
+            page_helpers.throwError("Scan is already running.")
+            return
 
-        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=lambda: (demo())))
+        self.stop_scan_event = threading.Event()
+
+        self.scan_thread = threading.Thread(
+            target=self.run_scan_worker,
+            daemon=True
+        )
+
+        self.scan_thread.start()
+
+    def run_scan_worker(self):
+        try:
+            run_scan_file = (
+                Path(__file__).resolve().parents[2]
+                / "work_in_progress_legacy_scripts"
+                / "run_scan_5.py"
+            )
+
+        except Exception as error:
+            page_helpers.throwError(f"Scan failed, aborting...\n {error}")
 
     def OpenFilterMenu(self):
         ch = 0

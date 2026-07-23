@@ -1,8 +1,10 @@
-from spm_control.gui.modes.raster_scan import Scan_Page
+from spm_control.gui.modes.scan import Scan_Page
 from spm_control.gui.modes.explorer import Explorer_Page
+from spm_control.gui.modes.machine_learning import ML_Page
 import customtkinter as ctk
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
+
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -26,8 +28,8 @@ class Application(ctk.CTk):
     def build_mode_toolbar(self):
         modes_loadout = {
             "scan": self.OpenScanMenu,
-            # "filter": self.OpenFilterMenu,
-            # "magnification": self.OpenZoomMenu,
+            "ML": self.OpenMLMenu,
+            # "": self.,
             "folders": self.OpenExplorerMenu,
         }
 
@@ -41,9 +43,11 @@ class Application(ctk.CTk):
         )
 
     def OpenScanMenu(self):
-        self.raster_scan_page = Scan_Page(self)
+        self.Scan_page = Scan_Page(self)
     def OpenExplorerMenu(self):
         self.Explorer_page = Explorer_Page(self)
+    def OpenMLMenu(self):
+        self.ML_page = ML_Page(self)
 
         
 
