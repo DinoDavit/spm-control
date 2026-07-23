@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-from spm_control.gui.modes import config
+import spm_control.config as config
 
 
 def run_raster_scan(stage, detector, stop_event):
@@ -49,7 +49,8 @@ def run_raster_scan(stage, detector, stop_event):
             time.sleep(major_delay if j == 0 else minor_delay)
 
             real_position = stage.position()
-            counts = detector.poll_counts()
+            acquisition_ms = scan.get("acquisition_ms", 100)
+            counts = detector.integrate_counts(acquisition_ms)
 
             if len(counts) < 2:
                 raise RuntimeError(f"HydraHarp returned fewer than two channels: {counts}")

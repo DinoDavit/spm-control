@@ -1,7 +1,7 @@
 import threading
 
-from spm_control.gui.modes import config
-from spm_control.hardware.piezo_stage import PiezoStage
+import spm_control.config as config
+from spm_control.hardware.piezo_stage import PIStage
 from spm_control.hardware.hydraharp import HydraHarpDetector
 from spm_control.scan.raster import run_raster_scan
 
@@ -31,10 +31,17 @@ class RasterManager:
 
         try:
             stage_settings = config.load_named_settings("stage", config.HARDWARE_CONFIG)
+            motion_settings = config.load_named_settings("piezo_scan_motion", config.HARDWARE_CONFIG)
             hydraharp_settings = config.load_named_settings("hydraharp", config.HARDWARE_CONFIG)
             sync_settings = config.load_named_settings("sync", config.HARDWARE_CONFIG)
 
-            stage = PiezoStage(stage_settings)
+            stage = PIStage(
+                controller_name=stage_settings["CONTROLLER_NAME"],
+                serial_number=str(stage_settings["SERIAL_NUM"]),
+                stage_models=[stage_settings["STAGE_MODEL"]] * int(stage_settings["NUM_AXES"]),
+                autozero=motion_settings["autozero_on_connect"]
+            )
+
             detector = HydraHarpDetector(hydraharp_settings, sync_settings)
 
             print("Connecting piezo stage...")

@@ -5,7 +5,7 @@ import os
 import sys
 import numpy as np
 
-import auto_emailer as emailer
+from spm_control.work_in_progress_legacy_scripts import auto_emailer as emailer
 
 # works for python 3 and windows and linux 64 bit
 

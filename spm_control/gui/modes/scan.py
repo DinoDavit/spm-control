@@ -65,8 +65,6 @@ class Scan_Page():
         except RuntimeError as error:
             page_helpers.throwError(str(error))
 
-        self.scan_thread.start()
-
     def run_scan_worker(self):
         try:
             run_scan_file = (
