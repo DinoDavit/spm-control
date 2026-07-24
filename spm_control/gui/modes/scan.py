@@ -4,6 +4,7 @@ from spm_control.gui.layout import MAIN_LAYOUT
 from spm_control.work_in_progress_legacy_scripts import filter_scan
 from spm_control.scan.raster_manager import RasterManager
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -56,25 +57,41 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        self.raster_manager = RasterManager()
+        self.raster_manager = RasterManager(self.app)
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
 
     def start_scan(self):
         try:
-            self.raster_manager.start()
-        except RuntimeError as error:
-            page_helpers.throwError(str(error))
+            scan_data = self.raster_manager.start()
+            main_display = self.panels["mode_display"]
 
-    def run_scan_worker(self):
-        try:
-            run_scan_file = (
-                Path(__file__).resolve().parents[2]
-                / "work_in_progress_legacy_scripts"
-                / "run_scan_5.py"
+            for widget in main_display.winfo_children():
+                widget.destroy()
+
+            mini_display = page_helpers.createFrame(
+                main_display,
+                "mini_display",
+                [0.1, 0.005, 0.8, 0.99],
+                outline=True
             )
 
+            canvas = FigureCanvasTkAgg(
+                scan_data["figure"],
+                master=mini_display
+            )
+
+            canvas.draw()
+            canvas.get_tk_widget().pack(
+                fill="both",
+                expand=True
+            )
+
+            main_display.scan_canvas = canvas
+            main_display.scan_figure = scan_data["figure"]
+            main_display.mini_display = mini_display
+
         except Exception as error:
-            page_helpers.throwError(f"Scan failed, aborting...\n {error}")
+            page_helpers.throwError(str(error))
 
     def OpenFilterMenu(self):
         ch = 0

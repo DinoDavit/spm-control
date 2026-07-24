@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 import spm_control.config as config
-from spm_control.analysis import scan_plot_and_analysis as spa
+from spm_control.scan import scan_plot_and_analysis as spa
 from spm_control.hardware.piezo_stage import PIStage
 from spm_control.hardware.hydraharp import HydraHarpDetector
 from spm_control.scan.raster import run_raster_scan
@@ -55,7 +55,11 @@ class RasterManager:
         self.raster_image = None
 
     def publish_raster_update(self, intensities):
-        if self.raster_figure is None or self.raster_image is None:
+        if (
+            self.raster_figure is None
+            or self.raster_image is None
+            or self.raster_colorbar is None
+        ):
             return
 
         self.gui_root.after(
@@ -63,6 +67,7 @@ class RasterManager:
             spa.update_live_raster_plot,
             self.raster_figure,
             self.raster_image,
+            self.raster_colorbar,
             intensities.copy()
         )
 
@@ -97,13 +102,12 @@ class RasterManager:
         if self.active_file.exists():
             raise FileExistsError(f"Scan file already exists: {self.active_file}")
 
-        self.raster_figure, self.raster_image = spa.create_live_raster_plot(
+        self.raster_figure, self.raster_image, self.raster_colorbar = (
+        spa.create_live_raster_plot(
             xlim=(x_nodes[0], x_nodes[-1]),
             ylim=(y_nodes[0], y_nodes[-1]),
-            shape=(len(x_nodes), len(y_nodes)),
-            vmin=scan_settings.get("vmin"),
-            vmax=scan_settings.get("vmax")
-        )
+            shape=(len(x_nodes), len(y_nodes))
+        ))
 
         self.active_data = {
             "type": "raster",
