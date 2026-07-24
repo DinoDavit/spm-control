@@ -51,3 +51,28 @@ def update_live_raster_plot(fig, image, colorbar, intensities):
         colorbar.update_normal(image)
 
     fig.canvas.draw_idle()
+
+def save_raster_plot(intensities, x_nodes, y_nodes, output_path, title):
+    fig = Figure(figsize=(7, 7), dpi=100)
+    ax = fig.add_subplot(111)
+
+    valid = intensities[np.isfinite(intensities)]
+    vmax = max(float(valid.max()), 1) if valid.size else 1
+
+    image = ax.imshow(
+        intensities.T,
+        origin="lower",
+        extent=(x_nodes[0], x_nodes[-1], y_nodes[0], y_nodes[-1]),
+        vmin=0,
+        vmax=vmax,
+        interpolation="none",
+        aspect="equal"
+    )
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_title(title)
+
+    fig.colorbar(image, ax=ax, label="Intensity")
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")

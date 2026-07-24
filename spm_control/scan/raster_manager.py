@@ -39,6 +39,7 @@ class RasterManager:
 
         self.raster_figure = None
         self.raster_image = None
+        self.raster_colorbar = None
 
     def is_running(self):
         return self.thread is not None and self.thread.is_alive()
@@ -46,13 +47,10 @@ class RasterManager:
     def get_active_data(self):
         return self.active_data
 
-    def set_live_plot(self, figure, image):
-        self.raster_figure = figure
-        self.raster_image = image
-
     def clear_live_plot(self):
         self.raster_figure = None
         self.raster_image = None
+        self.raster_colorbar = None
 
     def publish_raster_update(self, intensities):
         if (
@@ -97,17 +95,21 @@ class RasterManager:
         scan_name = f"{today}_pq{experiment_number}"
 
         self.active_file = scan_folder / f"{scan_name}_scan_data.txt"
-        png_file = scan_folder / f"{scan_name}.png"
+
+        combined_png = scan_folder / f"{scan_name}.png"
+        ch1_png = scan_folder / f"{scan_name}_ch1.png"
+        ch2_png = scan_folder / f"{scan_name}_ch2.png"
 
         if self.active_file.exists():
             raise FileExistsError(f"Scan file already exists: {self.active_file}")
 
         self.raster_figure, self.raster_image, self.raster_colorbar = (
-        spa.create_live_raster_plot(
-            xlim=(x_nodes[0], x_nodes[-1]),
-            ylim=(y_nodes[0], y_nodes[-1]),
-            shape=(len(x_nodes), len(y_nodes))
-        ))
+            spa.create_live_raster_plot(
+                xlim=(x_nodes[0], x_nodes[-1]),
+                ylim=(y_nodes[0], y_nodes[-1]),
+                shape=(len(x_nodes), len(y_nodes))
+            )
+        )
 
         self.active_data = {
             "type": "raster",
@@ -115,11 +117,11 @@ class RasterManager:
             "scan_name": scan_name,
             "folder": scan_folder,
             "data_file": self.active_file,
-            "png_file": png_file,
+            "combined_png": combined_png,
+            "ch1_png": ch1_png,
+            "ch2_png": ch2_png,
             "x_nodes": x_nodes,
             "y_nodes": y_nodes,
-            "vmin": scan_settings.get("vmin"),
-            "vmax": scan_settings.get("vmax"),
             "figure": self.raster_figure,
             "status": "starting"
         }
@@ -135,6 +137,36 @@ class RasterManager:
 
     def stop(self):
         self.stop_event.set()
+
+    def _save_scan_plots(self):
+        intensities = self.last_result["intensities"]
+        split_intensities = self.last_result["split_intensities"]
+        x_nodes = self.last_result["x_nodes"]
+        y_nodes = self.last_result["y_nodes"]
+
+        spa.save_raster_plot(
+            intensities,
+            x_nodes,
+            y_nodes,
+            self.active_data["combined_png"],
+            "Combined Channels"
+        )
+
+        spa.save_raster_plot(
+            split_intensities[0],
+            x_nodes,
+            y_nodes,
+            self.active_data["ch1_png"],
+            "Channel 1"
+        )
+
+        spa.save_raster_plot(
+            split_intensities[1],
+            x_nodes,
+            y_nodes,
+            self.active_data["ch2_png"],
+            "Channel 2"
+        )
 
     def _run(self):
         stage = None
@@ -152,6 +184,7 @@ class RasterManager:
                 str(stage_settings["SERIAL_NUM"]),
                 [stage_settings["STAGE_MODEL"]] * stage_settings["NUM_AXES"]
             )
+
             detector = HydraHarpDetector(hydraharp_settings, sync_settings)
 
             stage.connect()
@@ -166,6 +199,11 @@ class RasterManager:
                 self.active_file,
                 progress_callback=self.publish_raster_update
             )
+
+            self.publish_raster_update(self.last_result["intensities"])
+
+            self.active_data["status"] = "saving"
+            self._save_scan_plots()
 
             if self.last_result.get("stopped", False):
                 self.active_data["status"] = "stopped"
