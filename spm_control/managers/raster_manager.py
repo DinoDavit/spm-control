@@ -8,8 +8,8 @@ import numpy as np
 import spm_control.config as config
 from spm_control.scan import scan_plot_and_analysis as spa
 from spm_control.hardware.piezo_stage import PIStage
-from spm_control.hardware.hydraharp import HydraHarpDetector
 from spm_control.scan.raster import run_raster_scan
+from spm_control.managers.hardware_manager import HardwareManager
 
 
 def get_exp_num(folder_path, suffix="_pq"):
@@ -27,8 +27,9 @@ def get_exp_num(folder_path, suffix="_pq"):
 
 
 class RasterManager:
-    def __init__(self, gui_root):
+    def __init__(self, gui_root, hardware_manager):
         self.gui_root = gui_root
+        self.hardware_manager = hardware_manager
         self.thread = None
         self.stop_event = threading.Event()
 
@@ -53,11 +54,7 @@ class RasterManager:
         self.raster_colorbar = None
 
     def publish_raster_update(self, intensities):
-        if (
-            self.raster_figure is None
-            or self.raster_image is None
-            or self.raster_colorbar is None
-        ):
+        if self.raster_figure is None or self.raster_image is None or self.raster_colorbar is None:
             return
 
         self.gui_root.after(
@@ -103,12 +100,10 @@ class RasterManager:
         if self.active_file.exists():
             raise FileExistsError(f"Scan file already exists: {self.active_file}")
 
-        self.raster_figure, self.raster_image, self.raster_colorbar = (
-            spa.create_live_raster_plot(
-                xlim=(x_nodes[0], x_nodes[-1]),
-                ylim=(y_nodes[0], y_nodes[-1]),
-                shape=(len(x_nodes), len(y_nodes))
-            )
+        self.raster_figure, self.raster_image, self.raster_colorbar = spa.create_live_raster_plot(
+            xlim=(x_nodes[0], x_nodes[-1]),
+            ylim=(y_nodes[0], y_nodes[-1]),
+            shape=(len(x_nodes), len(y_nodes))
         )
 
         self.active_data = {
@@ -170,14 +165,11 @@ class RasterManager:
 
     def _run(self):
         stage = None
-        detector = None
 
         try:
             self.active_data["status"] = "connecting"
 
             stage_settings = config.load_named_settings("stage", config.HARDWARE_CONFIG)
-            hydraharp_settings = config.load_named_settings("hydraharp", config.HARDWARE_CONFIG)
-            sync_settings = config.load_named_settings("sync", config.HARDWARE_CONFIG)
 
             stage = PIStage(
                 stage_settings["CONTROLLER_NAME"],
@@ -185,20 +177,21 @@ class RasterManager:
                 [stage_settings["STAGE_MODEL"]] * stage_settings["NUM_AXES"]
             )
 
-            detector = HydraHarpDetector(hydraharp_settings, sync_settings)
-
             stage.connect()
-            detector.connect()
+            detector = self.hardware_manager.connect_detector()
 
-            self.active_data["status"] = "running"
+            self.active_data["status"] = "waiting_for_detector"
 
-            self.last_result = run_raster_scan(
-                stage,
-                detector,
-                self.stop_event,
-                self.active_file,
-                progress_callback=self.publish_raster_update
-            )
+            with self.hardware_manager.detector_lock:
+                self.active_data["status"] = "running"
+
+                self.last_result = run_raster_scan(
+                    stage,
+                    detector,
+                    self.stop_event,
+                    self.active_file,
+                    progress_callback=self.publish_raster_update
+                )
 
             self.publish_raster_update(self.last_result["intensities"])
 
@@ -219,12 +212,6 @@ class RasterManager:
             print(f"Raster scan failed: {error}")
 
         finally:
-            if detector is not None:
-                try:
-                    detector.close()
-                except Exception as error:
-                    print(f"HydraHarp close failed: {error}")
-
             if stage is not None:
                 try:
                     stage.close()
