@@ -13,7 +13,12 @@ spm_control/analysis/io.py
 spm_control/analysis/plotting.py
 spm_control/gui/__init__.py
 spm_control/gui/app.py
+spm_control/gui/layout.py
+spm_control/gui/modes/config.py
+spm_control/gui/modes/explorer.py
+spm_control/gui/modes/page_helpers.py
 spm_control/gui/modes/raster_scan.py
+spm_control/gui/modes/validators.py
 spm_control/hardware/__init__.py
 spm_control/hardware/hydraharp.py
 spm_control/hardware/interfaces.py
@@ -45,5 +50,8 @@ spm_control/scan/__init__.py
 spm_control/scan/focus.py
 spm_control/scan/raster.py
 spm_control/scan/tttr_queue.py
+spm_control/work_in_progress_legacy_scripts/filter_scan.py
+spm_control/work_in_progress_legacy_scripts/hydraharp_intensities.py
 spm_control/work_in_progress_legacy_scripts/run_scan_5.py
+spm_control/work_in_progress_legacy_scripts/scan_plot_and_analysis.py
 tests/test_scan_config.py

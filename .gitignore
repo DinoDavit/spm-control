@@ -15,7 +15,6 @@ token.json
 *.pt3
 *.t3r
 *.t2r
-*.png
 *.jpg
 *.jpeg
 *.csv
@@ -27,4 +26,20 @@ token.json
 .DS_Store
 .vscode/
 .idea/
+.venv/
+
+*.pdf
+*.docx
+*.xlsx
+private/
+sensitive/
+
+# Secrets
+.env
+credentials.json
+token.json
+*.key
+*.pem
+
+# Local environments
 .venv/

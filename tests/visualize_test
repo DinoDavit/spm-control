@@ -1,0 +1,60 @@
+import tkinter as tk
+import customtkinter as ctk
+
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+
+class Application(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("30x30 Grid Visualizer")
+        self.geometry("1200x700")
+
+        self.canvas = tk.Canvas(
+            self,
+            bg="black",
+            highlightthickness=0,
+            bd=0
+        )
+        self.canvas.pack(fill="both", expand=True)
+
+        self.canvas.bind("<Configure>", self.draw_grid)
+
+    def draw_grid(self, event=None):
+        self.canvas.delete("all")
+
+        rows = 30
+        columns = 30
+
+        width = self.canvas.winfo_width() - 1
+        height = self.canvas.winfo_height() - 1
+
+        for col in range(columns + 1):
+            x = round(width * col / columns)
+            self.canvas.create_line(
+                x, 0,
+                x, height,
+                fill="white",
+                width=1
+            )
+
+        for row in range(rows + 1):
+            y = round(height * row / rows)
+            self.canvas.create_line(
+                0, y,
+                width, y,
+                fill="white",
+                width=1
+            )
+
+
+def main():
+    app = Application()
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    main()

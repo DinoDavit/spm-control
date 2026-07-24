@@ -7,6 +7,7 @@ Requires-Dist: numpy
 Requires-Dist: matplotlib
 Requires-Dist: pyyaml
 Requires-Dist: ttkbootstrap
+Requires-Dist: Customtkinter
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 Provides-Extra: hardware
