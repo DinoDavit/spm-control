@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 
 import spm_control.config as config
+from spm_control.analysis import scan_plot_and_analysis as spa
 from spm_control.hardware.piezo_stage import PIStage
 from spm_control.hardware.hydraharp import HydraHarpDetector
 from spm_control.scan.raster import run_raster_scan
@@ -26,19 +27,44 @@ def get_exp_num(folder_path, suffix="_pq"):
 
 
 class RasterManager:
-    def __init__(self):
+    def __init__(self, gui_root):
+        self.gui_root = gui_root
         self.thread = None
         self.stop_event = threading.Event()
+
         self.active_file = None
         self.active_data = None
         self.last_result = None
         self.error = None
+
+        self.raster_figure = None
+        self.raster_image = None
 
     def is_running(self):
         return self.thread is not None and self.thread.is_alive()
 
     def get_active_data(self):
         return self.active_data
+
+    def set_live_plot(self, figure, image):
+        self.raster_figure = figure
+        self.raster_image = image
+
+    def clear_live_plot(self):
+        self.raster_figure = None
+        self.raster_image = None
+
+    def publish_raster_update(self, intensities):
+        if self.raster_figure is None or self.raster_image is None:
+            return
+
+        self.gui_root.after(
+            0,
+            spa.update_live_raster_plot,
+            self.raster_figure,
+            self.raster_image,
+            intensities.copy()
+        )
 
     def start(self):
         if self.is_running():
@@ -71,6 +97,14 @@ class RasterManager:
         if self.active_file.exists():
             raise FileExistsError(f"Scan file already exists: {self.active_file}")
 
+        self.raster_figure, self.raster_image = spa.create_live_raster_plot(
+            xlim=(x_nodes[0], x_nodes[-1]),
+            ylim=(y_nodes[0], y_nodes[-1]),
+            shape=(len(x_nodes), len(y_nodes)),
+            vmin=scan_settings.get("vmin"),
+            vmax=scan_settings.get("vmax")
+        )
+
         self.active_data = {
             "type": "raster",
             "experiment_number": experiment_number,
@@ -82,6 +116,7 @@ class RasterManager:
             "y_nodes": y_nodes,
             "vmin": scan_settings.get("vmin"),
             "vmax": scan_settings.get("vmax"),
+            "figure": self.raster_figure,
             "status": "starting"
         }
 
@@ -119,7 +154,14 @@ class RasterManager:
             detector.connect()
 
             self.active_data["status"] = "running"
-            self.last_result = run_raster_scan(stage, detector, self.stop_event, self.active_file)
+
+            self.last_result = run_raster_scan(
+                stage,
+                detector,
+                self.stop_event,
+                self.active_file,
+                progress_callback=self.publish_raster_update
+            )
 
             if self.last_result.get("stopped", False):
                 self.active_data["status"] = "stopped"

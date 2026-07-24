@@ -1,10 +1,43 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib as mpl
-import warnings
+from matplotlib import colors
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+def create_scan_figure(Xs, Ys, intensities, size=(7, 7), vmin=None, vmax=None, log_scale=False):
+    Xs = np.asarray(Xs)
+    Ys = np.asarray(Ys)
+    intensities = np.asarray(intensities)
+
+    if Xs.shape != Ys.shape or Xs.shape != intensities.shape:
+        raise ValueError("Xs, Ys, and intensities must have matching shapes.")
+
+    fig = Figure(figsize=size, dpi=100)
+    ax = fig.add_subplot(111)
+
+    norm = None
+    if log_scale:
+        positive = intensities[intensities > 0]
+        if positive.size:
+            vmin = vmin if vmin is not None else positive.min()
+            vmax = vmax if vmax is not None else positive.max()
+            if vmax > vmin:
+                norm = colors.LogNorm(vmin=vmin, vmax=vmax)
+    elif vmin is not None or vmax is not None:
+        norm = colors.Normalize(vmin=vmin, vmax=vmax)
+
+    heatmap = ax.pcolormesh(Xs, Ys, intensities, cmap="viridis", shading="auto", norm=norm)
+    ax.set_aspect("equal")
+    ax.set_xlabel("X (µm)")
+    ax.set_ylabel("Y (µm)")
+
+    divider = make_axes_locatable(ax)
+    colorbar_ax = divider.append_axes("right", size="5%", pad=0.10)
+    colorbar = fig.colorbar(heatmap, cax=colorbar_ax)
+    colorbar.set_label("Intensity (counts/s)")
+
+    fig.tight_layout()
+    return fig
 #import diptest
 
 #warnings.filterwarnings('ignore')

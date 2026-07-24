@@ -4,7 +4,7 @@ import numpy as np
 import spm_control.config as config
 
 
-def run_raster_scan(stage, detector, stop_event, output_path):
+def run_raster_scan(stage, detector, stop_event, output_path, progress_callback=None):
     scan = config.load_named_settings("scan", config.SCAN_CONFIG)
     motion = config.load_named_settings("piezo_scan_motion", config.HARDWARE_CONFIG)
 
@@ -19,8 +19,8 @@ def run_raster_scan(stage, detector, stop_event, output_path):
     x_nodes = np.linspace(x_min, x_max, int((x_max - x_min) / resolution) + 1).round(3)
     y_nodes = np.linspace(y_min, y_max, int((y_max - y_min) / resolution) + 1).round(3)
 
-    intensities = np.zeros((len(x_nodes), len(y_nodes)))
-    split_intensities = np.zeros((2, len(x_nodes), len(y_nodes)))
+    intensities = np.full((len(x_nodes), len(y_nodes)), np.nan)
+    split_intensities = np.full((2, len(x_nodes), len(y_nodes)), np.nan)
 
     start_position = {"1": x_min, "2": y_min, "3": z_focus}
     stage.move(start_position)
@@ -59,7 +59,6 @@ def run_raster_scan(stage, detector, stop_event, output_path):
                     f"{real_position['1']},{real_position['2']},{real_position['3']},"
                     f"{ch1},{ch2},{elapsed}\n"
                 )
-                scan_file.flush()
 
                 completed_points += 1
                 print(
@@ -67,6 +66,9 @@ def run_raster_scan(stage, detector, stop_event, output_path):
                     f"x={real_position['1']}, y={real_position['2']}, "
                     f"ch1={ch1}, ch2={ch2}, time={time.time() - point_start:.3f}s"
                 )
+
+            if progress_callback is not None:
+                progress_callback(intensities)
 
             if stopped:
                 break
