@@ -383,3 +383,36 @@ def displayImage(frame, image_source):
     ))
 
     return label
+
+def createDisplayEntry(
+    parent,
+    name,
+    value="0",
+    label_width=70,
+    entry_width=100
+):
+    value_var = ctk.StringVar(value=value)
+
+    label = createLabel(
+        parent,
+        text=f"{name}:",
+        sz=17,
+        font="Arial",
+        width=label_width,
+        anchor="e",
+        pack=False
+    )
+    label.pack(side="left", padx=(0, 5))
+
+    entry = ctk.CTkEntry(
+        parent,
+        textvariable=value_var,
+        width=entry_width,
+        height=26,
+        font=("Arial", 14),
+        justify="center",
+        state="disabled"
+    )
+    entry.pack(side="left")
+
+    return entry, value_var
