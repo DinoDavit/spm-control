@@ -173,6 +173,8 @@ def plot_channel_hists(Xs, Ys, Ch1_ints, Ch2_ints, normalize=False):
 
     plt.show()
 
+
+
 def hartigans_diptest(data):
     # https://gist.github.com/larsmans/3153330
     # https://stackoverflow.com/questions/38420847/how-to-test-if-a-distribution-is-unimodal-or-not-in-python
@@ -196,10 +198,11 @@ def hartigans_diptest(data):
     # --------
 
     return diptest.diptest(data)
+    
 
-def create_live_scan_plot(intensities, xlim, ylim, vmin, vmax, parent=None, norm="linear"):
+def create_live_scan_plot(intensities, xlim, ylim, vmin=None, vmax=None, parent=None, norm="linear"):
     if norm == "log":
-        norm_scale = mpl.colors.LogNorm(vmin=vmin, vmax=vmax)
+        norm_scale = mpl.colors.LogNorm(vmin=max(vmin or 1, 1), vmax=vmax)
     else:
         norm_scale = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
 
@@ -218,7 +221,7 @@ def create_live_scan_plot(intensities, xlim, ylim, vmin, vmax, parent=None, norm
         extent=(*xlim, *ylim),
         interpolation="none",
         cmap="viridis",
-        aspect="equal",
+        aspect="equal"
     )
 
     axes.set_xlim(xlim)
@@ -237,7 +240,92 @@ def create_live_scan_plot(intensities, xlim, ylim, vmin, vmax, parent=None, norm
 
     return figure, axes, image, canvas
 
+
 def update_live_scan_plot(live_plot, intensities):
     figure, axes, image, canvas = live_plot
     image.set_data(intensities.T)
     canvas.draw_idle()
+
+def create_live_file_plot(file_path, x_nodes, y_nodes, parent, vmin=None, vmax=None, norm="linear"):
+    x_nodes = np.asarray(x_nodes)
+    y_nodes = np.asarray(y_nodes)
+    intensities = np.full((len(x_nodes), len(y_nodes)), np.nan)
+
+    return {
+        "file_path": Path(file_path),
+        "x_nodes": x_nodes,
+        "y_nodes": y_nodes,
+        "intensities": intensities,
+        "last_position": 0,
+        "latest_counts": None,
+        "plot": create_live_scan_plot(
+            intensities,
+            (x_nodes[0], x_nodes[-1]),
+            (y_nodes[0], y_nodes[-1]),
+            vmin,
+            vmax,
+            parent,
+            norm
+        )
+    }
+
+
+def update_live_file_plot(live_scan):
+    changed = False
+
+    try:
+        with live_scan["file_path"].open("r") as file:
+            file.seek(live_scan["last_position"])
+
+            while True:
+                line_start = file.tell()
+                line = file.readline()
+
+                if not line:
+                    break
+
+                if not line.endswith("\n"):
+                    file.seek(line_start)
+                    break
+
+                line = line.strip()
+
+                if not line or line.startswith("#"):
+                    continue
+
+                values = line.split(",")
+
+                if len(values) != 6:
+                    continue
+
+                x, y, z, ch1, ch2, elapsed = map(float, values)
+
+                i = int(np.argmin(np.abs(live_scan["x_nodes"] - x)))
+                j = int(np.argmin(np.abs(live_scan["y_nodes"] - y)))
+
+                live_scan["intensities"][i, j] = ch1 + ch2
+                live_scan["latest_counts"] = {
+                    "ch1": int(ch1),
+                    "ch2": int(ch2),
+                    "total": int(ch1 + ch2),
+                    "x": x,
+                    "y": y,
+                    "z": z,
+                    "elapsed": elapsed
+                }
+
+                changed = True
+
+            live_scan["last_position"] = file.tell()
+
+    except FileNotFoundError:
+        return False
+
+    if changed:
+        update_live_scan_plot(live_scan["plot"], live_scan["intensities"])
+
+    return changed
+
+
+def save_live_file_plot(live_scan, save_path):
+    live_scan["plot"][0].savefig(save_path, dpi=300, bbox_inches="tight")

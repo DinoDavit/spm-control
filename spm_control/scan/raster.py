@@ -4,14 +4,13 @@ import numpy as np
 import spm_control.config as config
 
 
-def run_raster_scan(stage, detector, stop_event):
+def run_raster_scan(stage, detector, stop_event, output_path):
     scan = config.load_named_settings("scan", config.SCAN_CONFIG)
     motion = config.load_named_settings("piezo_scan_motion", config.HARDWARE_CONFIG)
 
     x_min, x_max = scan["x_min"], scan["x_max"]
     y_min, y_max = scan["y_min"], scan["y_max"]
-    z_focus = scan["z_focus"]
-    resolution = scan["resolution"]
+    z_focus, resolution = scan["z_focus"], scan["resolution"]
 
     major_delay = motion["major_axis_delay"]
     minor_delay = motion["minor_axis_delay"]
@@ -20,59 +19,66 @@ def run_raster_scan(stage, detector, stop_event):
     x_nodes = np.linspace(x_min, x_max, int((x_max - x_min) / resolution) + 1).round(3)
     y_nodes = np.linspace(y_min, y_max, int((y_max - y_min) / resolution) + 1).round(3)
 
-    x_grid, y_grid = np.meshgrid(x_nodes, y_nodes, indexing="ij")
     intensities = np.zeros((len(x_nodes), len(y_nodes)))
     split_intensities = np.zeros((2, len(x_nodes), len(y_nodes)))
 
-    print("Moving to starting position...")
-    stage.move({"1": x_min, "2": y_min, "3": z_focus})
+    start_position = {"1": x_min, "2": y_min, "3": z_focus}
+    stage.move(start_position)
     time.sleep(settle_time)
 
     completed_points = 0
+    scan_start = time.time()
+    stopped = False
 
-    for i, x_position in enumerate(x_nodes):
-        for j, y_position in enumerate(y_nodes):
-            # Safe stopping point: before beginning another complete measurement.
-            if stop_event.is_set():
-                return {
-                    "stopped": True,
-                    "x_grid": x_grid,
-                    "y_grid": y_grid,
-                    "intensities": intensities,
-                    "split_intensities": split_intensities,
-                    "completed_points": completed_points
-                }
+    with open(output_path, "w", buffering=1) as scan_file:
+        for i, x in enumerate(x_nodes):
+            for j, y in enumerate(y_nodes):
+                if stop_event.is_set():
+                    stopped = True
+                    break
 
-            point_start = time.time()
+                point_start = time.time()
+                stage.move({"1": float(x), "2": float(y)})
+                time.sleep(major_delay if j == 0 else minor_delay)
 
-            stage.move({"1": float(x_position), "2": float(y_position)})
-            time.sleep(major_delay if j == 0 else minor_delay)
+                real_position = stage.position()
+                counts = detector.poll_counts()
 
-            real_position = stage.position()
-            counts = detector.poll_counts()
+                if len(counts) < 2:
+                    raise RuntimeError(f"Expected two detector channels, received: {counts}")
 
-            if len(counts) < 2:
-                raise RuntimeError(f"HydraHarp returned fewer than two channels: {counts}")
+                ch1, ch2 = int(counts[0]), int(counts[1])
+                total = ch1 + ch2
+                elapsed = time.time() - scan_start
 
-            split_intensities[0, i, j] = counts[0]
-            split_intensities[1, i, j] = counts[1]
-            intensities[i, j] = np.sum(counts)
-            completed_points += 1
+                split_intensities[0, i, j] = ch1
+                split_intensities[1, i, j] = ch2
+                intensities[i, j] = total
 
-            print(
-                f"Position: ({real_position['1']:.3f}, {real_position['2']:.3f}, "
-                f"{real_position['3']:.3f}); counts: {counts}; "
-                f"time: {time.time() - point_start:.3f}s"
-            )
+                scan_file.write(
+                    f"{real_position['1']},{real_position['2']},{real_position['3']},"
+                    f"{ch1},{ch2},{elapsed}\n"
+                )
+                scan_file.flush()
 
-    print("Returning to starting position...")
-    stage.move({"1": x_min, "2": y_min, "3": z_focus})
+                completed_points += 1
+                print(
+                    f"Point {completed_points}: "
+                    f"x={real_position['1']}, y={real_position['2']}, "
+                    f"ch1={ch1}, ch2={ch2}, time={time.time() - point_start:.3f}s"
+                )
+
+            if stopped:
+                break
+
+    stage.move(start_position)
 
     return {
-        "stopped": False,
-        "x_grid": x_grid,
-        "y_grid": y_grid,
+        "stopped": stopped,
+        "completed_points": completed_points,
+        "output_path": output_path,
         "intensities": intensities,
         "split_intensities": split_intensities,
-        "completed_points": completed_points
+        "x_nodes": x_nodes,
+        "y_nodes": y_nodes
     }
