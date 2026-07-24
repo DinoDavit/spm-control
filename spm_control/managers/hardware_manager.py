@@ -7,8 +7,13 @@ from spm_control.hardware.hydraharp import HydraHarpDetector
 class HardwareManager:
     def __init__(self):
         self.detector = None
+
         self.detector_lock = threading.Lock()
         self.connection_lock = threading.Lock()
+        self.state_lock = threading.Lock()
+
+        self.current_operation = "idle"
+        self.latest_counts = (0, 0)
 
     def connect_detector(self):
         with self.connection_lock:
@@ -24,9 +29,29 @@ class HardwareManager:
 
             return self.detector
 
+    def set_operation(self, operation):
+        with self.state_lock:
+            self.current_operation = operation
+
+    def get_operation(self):
+        with self.state_lock:
+            return self.current_operation
+
+    def set_latest_counts(self, ch1, ch2):
+        with self.state_lock:
+            self.latest_counts = (ch1, ch2)
+
+    def get_latest_counts(self):
+        with self.state_lock:
+            return self.latest_counts
+
     def close_detector(self):
         with self.connection_lock:
             with self.detector_lock:
                 if self.detector is not None:
                     self.detector.close()
                     self.detector = None
+
+                with self.state_lock:
+                    self.current_operation = "idle"
+                    self.latest_counts = (0, 0)

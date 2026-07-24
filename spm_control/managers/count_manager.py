@@ -2,10 +2,11 @@ import threading
 
 
 class CountManager:
-    def __init__(self, gui_root, hardware_manager, update_callback=None, interval=0.5):
+    def __init__(self, gui_root, hardware_manager, update_callback=None, status_callback=None, interval=0.5):
         self.gui_root = gui_root
         self.hardware_manager = hardware_manager
         self.update_callback = update_callback
+        self.status_callback = status_callback
         self.interval = interval
 
         self.thread = None
@@ -39,6 +40,10 @@ class CountManager:
         if self.update_callback is not None:
             self.gui_root.after(0, self.update_callback, ch1, ch2)
 
+    def _publish_status(self, status):
+        if self.status_callback is not None:
+            self.gui_root.after(0, self.status_callback, status)
+
     def _run(self):
         try:
             detector = self.hardware_manager.connect_detector()
@@ -59,8 +64,12 @@ class CountManager:
 
                     self._publish_counts(ch1, ch2)
 
+                else:
+                    self._publish_status(self.hardware_manager.get_operation())
+
                 self.stop_event.wait(self.interval)
 
         except Exception as error:
             self.error = error
+            self._publish_status("error")
             print(f"Idle count monitoring failed: {error}")

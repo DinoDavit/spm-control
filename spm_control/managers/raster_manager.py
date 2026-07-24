@@ -183,16 +183,19 @@ class RasterManager:
             self.active_data["status"] = "waiting_for_detector"
 
             with self.hardware_manager.detector_lock:
-                # Wait's until the lock can be accessed and then executes code with new locked thread
+                self.hardware_manager.set_operation("raster_scan")
                 self.active_data["status"] = "running"
 
-                self.last_result = run_raster_scan(
-                    stage,
-                    detector,
-                    self.stop_event,
-                    self.active_file,
-                    progress_callback=self.publish_raster_update
-                )
+                try:
+                    self.last_result = run_raster_scan(
+                        stage,
+                        detector,
+                        self.stop_event,
+                        self.active_file,
+                        progress_callback=self.publish_raster_update
+                    )
+                finally:
+                    self.hardware_manager.set_operation("idle")
 
             self.publish_raster_update(self.last_result["intensities"])
 

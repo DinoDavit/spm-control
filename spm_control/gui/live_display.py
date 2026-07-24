@@ -34,7 +34,8 @@ class Live_Display:
         self.count_manager = CountManager(
             app,
             app.hardware_manager,
-            self.update_counts,
+            update_callback=self.update_counts,
+            status_callback=self.update_status,
             interval=0.5
         )
 
@@ -43,6 +44,21 @@ class Live_Display:
     def update_counts(self, ch1, ch2):
         self.ch1_value.set(self.format_count(ch1))
         self.ch2_value.set(self.format_count(ch2))
+
+    def update_status(self, status):
+        status_messages = {
+            "raster_scan": "SCANNING",
+            "g2": "G²",
+            "connecting": "CONNECTING",
+            "disconnected": "OFFLINE",
+            "error": "ERROR"
+        }
+
+        message = status_messages.get(status)
+
+        if message is not None:
+            self.ch1_value.set(message)
+            self.ch2_value.set(message)
 
     @staticmethod
     def format_count(count):
