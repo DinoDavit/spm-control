@@ -1,28 +1,23 @@
 from spm_control.gui.modes import page_helpers
 from spm_control.managers.count_manager import CountManager
 
-class Live_Display:
-    def __init__(self, app):
-        self.app = app
 
-        self.main_frame = page_helpers.createFrame(
-            app,
-            "live_counts",
-            [0.1, 0.9, 0.8, 0.08],
-            outline=True
-        )
+class Live_Display:
+    def __init__(self, app, parent):
+        self.app = app
+        self.parent = parent
 
         self.ch1_frame = page_helpers.createFrame(
-            self.main_frame,
+            parent,
             "channel_1",
-            [0.02, 0.1, 0.46, 0.8],
+            [0.05, 0.08, 0.9, 0.4],
             outline=True
         )
 
         self.ch2_frame = page_helpers.createFrame(
-            self.main_frame,
+            parent,
             "channel_2",
-            [0.52, 0.1, 0.46, 0.8],
+            [0.05, 0.52, 0.9, 0.4],
             outline=True
         )
 

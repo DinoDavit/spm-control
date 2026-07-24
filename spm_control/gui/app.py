@@ -55,7 +55,7 @@ class Application(ctk.CTk):
         self.ML_page = ML_Page(self)
 
     def CreateLiveDisplay(self):
-        self.live_display = Live_Display(self)
+        self.live_display = Live_Display(self, parent=self.panels["counts"])
 
     def close_app(self):
         if hasattr(self, "live_display"):

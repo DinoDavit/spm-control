@@ -17,7 +17,6 @@ class Scan_Page():
             "mode_options",
             "mode_display",
             "option_parameters",
-            "counts",
         }
 
         self.panels = app.panels
@@ -57,7 +56,7 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
-        self.raster_manager = RasterManager(self.app)
+        self.raster_manager = RasterManager(self.app, self.app.hardware_manager)
         p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
 
     def start_scan(self):
