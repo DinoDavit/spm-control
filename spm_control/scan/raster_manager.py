@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-from spm_control.gui.modes import config
-from spm_control.hardware.piezo_stage import PiezoStage
+import spm_control.config as config
+from spm_control.hardware.piezo_stage import PIStage
 from spm_control.hardware.hydraharp import HydraHarpDetector
 from spm_control.scan.raster import run_raster_scan
 
@@ -108,7 +108,11 @@ class RasterManager:
             hydraharp_settings = config.load_named_settings("hydraharp", config.HARDWARE_CONFIG)
             sync_settings = config.load_named_settings("sync", config.HARDWARE_CONFIG)
 
-            stage = PiezoStage(stage_settings)
+            stage = PIStage(
+                stage_settings["CONTROLLER_NAME"],
+                str(stage_settings["SERIAL_NUM"]),
+                [stage_settings["STAGE_MODEL"]] * stage_settings["NUM_AXES"]
+            )
             detector = HydraHarpDetector(hydraharp_settings, sync_settings)
 
             stage.connect()
