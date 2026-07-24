@@ -1,6 +1,7 @@
 from spm_control.gui.modes.scan import Scan_Page
 from spm_control.gui.modes.explorer import Explorer_Page
 from spm_control.gui.modes.machine_learning import ML_Page
+from spm_control.gui import Live_Display
 
 import customtkinter as ctk
 
@@ -50,6 +51,9 @@ class Application(ctk.CTk):
         self.Explorer_page = Explorer_Page(self)
     def OpenMLMenu(self):
         self.ML_page = ML_Page(self)
+    
+    def CreateLiveDisplay(self):
+        self.Live_display = Live_Display(self)
 
         
 

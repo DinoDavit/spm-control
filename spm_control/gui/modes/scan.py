@@ -2,7 +2,7 @@ from spm_control.gui.modes import page_helpers
 from spm_control.gui.modes import config
 from spm_control.gui.layout import MAIN_LAYOUT
 from spm_control.work_in_progress_legacy_scripts import filter_scan
-from spm_control.scan.raster_manager import RasterManager
+from spm_control.managers.raster_manager import RasterManager
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
