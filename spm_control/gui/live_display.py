@@ -1,4 +1,4 @@
-from spm_control.gui import page_helpers
+from spm_control.gui.modes import page_helpers
 from spm_control.managers.count_manager import CountManager
 
 class Live_Display:

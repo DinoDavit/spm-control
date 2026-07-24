@@ -183,6 +183,7 @@ class RasterManager:
             self.active_data["status"] = "waiting_for_detector"
 
             with self.hardware_manager.detector_lock:
+                # Wait's until the lock can be accessed and then executes code with new locked thread
                 self.active_data["status"] = "running"
 
                 self.last_result = run_raster_scan(
