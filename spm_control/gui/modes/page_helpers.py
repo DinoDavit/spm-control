@@ -5,7 +5,8 @@ from spm_control.gui.modes import validators as check
 from pathlib import Path
 from PIL import Image
 from tkinter import messagebox
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import matplotlib.pyplot as plt
 
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
@@ -414,3 +415,33 @@ def createDisplayEntry(parent, name, value="0", label_width=90, entry_width=145)
     entry.pack(side="left")
 
     return entry, value_var
+
+
+def display_figure(self, main_display, figure):
+    # Embeds a mpl figure into a canvas on a mini display (meant for main_display)
+    for widget in main_display.winfo_children():
+        widget.destroy()
+
+    old_figure = getattr(main_display, "scan_figure", None)
+    if old_figure is not None and old_figure is not figure:
+        plt.close(old_figure)
+
+    mini_display = createFrame(
+        main_display,
+        "mini_display",
+        [0.1, 0.005, 0.8, 0.99],
+        outline=True
+    )
+
+    canvas = FigureCanvasTkAgg(figure, master=mini_display)
+    toolbar = NavigationToolbar2Tk(canvas, mini_display, pack_toolbar=False)
+
+    toolbar.update()
+    toolbar.pack(side="bottom", fill="x")
+    canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
+    canvas.draw()
+
+    main_display.scan_canvas = canvas
+    main_display.scan_toolbar = toolbar
+    main_display.scan_figure = figure
+    main_display.mini_display = mini_display

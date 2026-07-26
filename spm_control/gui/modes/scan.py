@@ -62,33 +62,10 @@ class Scan_Page():
     def start_scan(self):
         try:
             scan_data = self.raster_manager.start()
-            main_display = self.panels["mode_display"]
-
-            for widget in main_display.winfo_children():
-                widget.destroy()
-
-            mini_display = page_helpers.createFrame(
-                main_display,
-                "mini_display",
-                [0.1, 0.005, 0.8, 0.99],
-                outline=True
+            page_helpers.display_figure(
+                self.panels["mode_display"],
+                scan_data["figure"]
             )
-
-            canvas = FigureCanvasTkAgg(
-                scan_data["figure"],
-                master=mini_display
-            )
-
-            canvas.draw()
-            canvas.get_tk_widget().pack(
-                fill="both",
-                expand=True
-            )
-
-            main_display.scan_canvas = canvas
-            main_display.scan_figure = scan_data["figure"]
-            main_display.mini_display = mini_display
-
         except Exception as error:
             page_helpers.throwError(str(error))
 
@@ -130,28 +107,10 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True, emptyOk=True)
         page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1, emptyOk=True)
 
-        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-        def display_filtered_scan(main_display, file_path, channel):
-
-            for widget in main_display.winfo_children():
-                widget.destroy()
-
-            old_figure = getattr(main_display, "scan_figure", None)
-
-            if old_figure is not None:
-                plt.close(old_figure)
-            fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
-
-            mini_display = page_helpers.createFrame(main_display, "mini_display", [0.1, 0.005, 0.8, 0.99], outline=True)
-
-            canvas = FigureCanvasTkAgg(fig, master=mini_display)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill="both", expand=True)
-
-            main_display.scan_canvas = canvas
-            main_display.scan_figure = fig
-        
+    def display_filtered_scan(main_display, file_path, channel):
+        fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
+        page_helpers.display_figure(main_display, fig)
+            
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, 
                                              lambda: config.update(p.entries, "scan", Scan_Config, nextCall = 
