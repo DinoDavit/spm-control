@@ -203,13 +203,13 @@ class RasterManager:
 
             self.publish_raster_update(self.last_result["intensities"])
 
-            self.active_data["status"] = "saving"
-            self._save_scan_plots()
-
             if self.last_result.get("stopped", False):
                 self.active_data["status"] = "stopped"
+                self.delete_scan_files()
             else:
-                self.active_data["status"] = "complete"
+                self.active_data["status"] = "saving"
+                self._save_scan_plots()
+                self.active_data["status"] = "complete" 
 
         except Exception as error:
             self.error = error
@@ -225,3 +225,15 @@ class RasterManager:
                     stage.close()
                 except Exception as error:
                     print(f"Stage close failed: {error}")
+
+    def delete_scan_files(self):
+        paths = [
+            self.active_data["data_file"],
+            self.active_data["combined_png"],
+            self.active_data["ch1_png"],
+            self.active_data["ch2_png"]
+        ]
+
+        for path in paths:
+            if path and path.exists():
+                path.unlink()

@@ -55,9 +55,16 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["z_focus"], nextE=p.entries["resolution"], min_val=0, max_val=20)
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
-        p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
+
         self.raster_manager = RasterManager(self.app, self.app.hardware_manager)
-        p.Run = page_helpers.createButton(p.last_row, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
+        p.RunFrame = page_helpers.createFrame(p, "third_row", [0.2, 0.9, 0.25, 0.05])
+        p.Run = page_helpers.createButton(p.RunFrame, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
+
+        p.StopFrame = page_helpers.createFrame(p, "third_row", [0.5, 0.9, 0.25, 0.05])
+        confirm_msg = "Please confirm you want to stop the scan, data will not be saved!"
+        def stop_scan():
+            self.raster_manager.stop()
+        p.Stop = page_helpers.createButton(p.StopFrame, "Stop", 5, lambda: page_helpers.confirmation(confirm_msg, nextCall=stop_scan), color="#c62828")
 
     def start_scan(self):
         try:
@@ -107,14 +114,14 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["intensity_min"], nextE=p.entries["intensity_max"], min_val=0, max_val=1e10, multi=1, ranged=True, emptyOk=True)
         page_helpers.bind_entry(p.entries["intensity_max"], min_val=0.1, max_val=1e10, multi=1, emptyOk=True)
 
-    def display_filtered_scan(main_display, file_path, channel):
-        fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
-        page_helpers.display_figure(main_display, fig)
+        def display_filtered_scan(main_display, file_path, channel):
+            fig = filter_scan.create_filtered_scan_plot(file_path, int(channel))
+            page_helpers.display_figure(main_display, fig)
             
         p.last_row = page_helpers.createFrame(p, "third_row", [0.35, 0.9, 0.3, 0.05])
         p.Filter = page_helpers.createButton(p.last_row, "Filter", 5, 
-                                             lambda: config.update(p.entries, "scan", Scan_Config, nextCall = 
-                                                                   lambda: display_filtered_scan(self.panels["mode_display"], data_path, ch)))
+                                                lambda: config.update(p.entries, "scan", Scan_Config, nextCall = 
+                                                                    lambda: display_filtered_scan(self.panels["mode_display"], data_path, ch)))
 
 
     def OpenZoomMenu(self):

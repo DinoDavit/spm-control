@@ -131,16 +131,21 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
             "button": button,
         }
 
-def createButton(parent, name, cRad, func):
+def createButton(parent, name, cRad, func, color=None):
+    kwargs = {}
+
+    if color is not None:
+        kwargs["fg_color"] = color
+
     button = ctk.CTkButton(
         master=parent,
         text=name,
         command=func,
-        corner_radius=cRad
+        corner_radius=cRad,
+        **kwargs
     )
 
     button.pack(fill="both", expand=True)
-
     return button
 
 
@@ -417,7 +422,7 @@ def createDisplayEntry(parent, name, value="0", label_width=90, entry_width=145)
     return entry, value_var
 
 
-def display_figure(self, main_display, figure):
+def display_figure(main_display, figure):
     # Embeds a mpl figure into a canvas on a mini display (meant for main_display)
     for widget in main_display.winfo_children():
         widget.destroy()
@@ -445,3 +450,11 @@ def display_figure(self, main_display, figure):
     main_display.scan_toolbar = toolbar
     main_display.scan_figure = figure
     main_display.mini_display = mini_display
+
+def confirmation(msg, T = "Confirm",nextCall = None):
+    confirmed = messagebox.askyesno(title=T, message=msg)
+
+    if confirmed and nextCall is not None:
+        nextCall()
+    else:
+        return
