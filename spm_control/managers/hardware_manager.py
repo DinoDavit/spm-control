@@ -44,6 +44,7 @@ class HardwareManager:
     def get_latest_counts(self):
         with self.state_lock:
             return self.latest_counts
+    # Getter and constructor methods for live count display
 
     def close_detector(self):
         with self.connection_lock:

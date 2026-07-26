@@ -43,6 +43,8 @@ class CountManager:
     def _publish_status(self, status):
         if self.status_callback is not None:
             self.gui_root.after(0, self.status_callback, status)
+            # Callback function as soon as it it basically can and publishes status
+            # 
 
     def _run(self):
         try:
@@ -50,10 +52,12 @@ class CountManager:
 
             while not self.stop_event.is_set():
                 acquired = self.hardware_manager.detector_lock.acquire(blocking=False)
+                # Status set to whether detector was able to be locked by count_manager
 
                 if acquired:
                     try:
                         counts = detector.poll_counts()
+                        # If acquired code proceeds
 
                         if len(counts) < 2:
                             raise RuntimeError(f"Expected two detector channels, received: {counts}")
@@ -61,12 +65,13 @@ class CountManager:
                         ch1, ch2 = int(counts[0]), int(counts[1])
                     finally:
                         self.hardware_manager.detector_lock.release()
+                        # If thread not acquired then detector thread is released
 
                     self._publish_counts(ch1, ch2)
 
                 else:
                     self._publish_status(self.hardware_manager.get_operation())
-
+                    # Otherwise basically fetch the current operation
                 self.stop_event.wait(self.interval)
 
         except Exception as error:

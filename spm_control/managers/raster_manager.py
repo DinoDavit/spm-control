@@ -22,6 +22,7 @@ def get_exp_num(folder_path, suffix="_pq"):
 
             if number.isdigit():
                 most_recent = max(most_recent, int(number))
+    # Looks for files in the folder_path designated and counts them if the match the suffix
 
     return most_recent + 1
 
@@ -41,6 +42,7 @@ class RasterManager:
         self.raster_figure = None
         self.raster_image = None
         self.raster_colorbar = None
+        # Initialization of status for managed components
 
     def is_running(self):
         return self.thread is not None and self.thread.is_alive()
@@ -54,6 +56,7 @@ class RasterManager:
         self.raster_colorbar = None
 
     def publish_raster_update(self, intensities):
+        # Callback function for after raster loop scans a column
         if self.raster_figure is None or self.raster_image is None or self.raster_colorbar is None:
             return
 
@@ -83,6 +86,7 @@ class RasterManager:
 
         x_nodes = np.linspace(x_min, x_max, int((x_max - x_min) / resolution) + 1).round(3)
         y_nodes = np.linspace(y_min, y_max, int((y_max - y_min) / resolution) + 1).round(3)
+        # Calculating piezo motion axis based on resolution
 
         today = datetime.today().strftime("%Y-%m-%d")
         scan_folder = Path(scan_settings["folder_path"]) / today

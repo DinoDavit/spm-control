@@ -181,18 +181,21 @@ def createButtonDisplay(parent, PNG, func):
 
     return my_button
 
-# def createCheckbox(parent, text, default=False, side="top"):
-#     var = ctk.BooleanVar(value=default)
+def createCheckbox(parent, text, default=False, side="top"):
+    var = ctk.BooleanVar(value=default)
 
-#     checkbox = ctk.CTkCheckBox(
-#         parent,
-#         text=text,
-#         variable=var
-#     )
+    checkbox = ctk.CTkCheckBox(
+        parent,
+        text=text,
+        variable=var,
+        checkbox_width=20,
+        checkbox_height=20,
+        anchor="w"
+    )
 
-#     checkbox.pack(side=side, anchor="w", padx=10, pady=5)
+    checkbox.pack(side=side, fill="x", anchor="w", padx=10, pady=5)
 
-#     return checkbox, var
+    return checkbox, var
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
     name = name.rstrip(":")
