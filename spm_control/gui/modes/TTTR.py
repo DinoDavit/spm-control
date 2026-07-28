@@ -32,3 +32,4 @@ class TTTR_Page:
         )
 
         p.second_rowTTTT = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.5, 0.05])
+        p.mode = page_helpers.createSelection(p, ["T2, T3"])
