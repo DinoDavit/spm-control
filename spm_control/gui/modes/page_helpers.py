@@ -131,11 +131,14 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
             "button": button,
         }
 
-def createButton(parent, name, cRad, func, color=None):
+def createButton(parent, name, cRad, func, color=None, hcolor=None):
     kwargs = {}
 
     if color is not None:
         kwargs["fg_color"] = color
+
+    if hcolor is not None:
+        kwargs["hover_color"] = hcolor
 
     button = ctk.CTkButton(
         master=parent,
@@ -393,7 +396,7 @@ def displayImage(frame, image_source):
 
     return label
 
-def createDisplayEntry(parent, name, value="0", label_width=90, entry_width=145):
+def createDisplayEntry(parent, name, value="0", label_width=80, entry_width=145, color = "#40E0D0"):
     value_var = ctk.StringVar(value=value)
 
     label = createLabel(
@@ -412,8 +415,8 @@ def createDisplayEntry(parent, name, value="0", label_width=90, entry_width=145)
         textvariable=value_var,
         width=entry_width,
         height=45,
-        font=("Arial", 24, "bold"),
-        text_color="red",
+        font=("Arial", 20, "bold"),
+        text_color=color,
         justify="center",
         state="disabled"
     )

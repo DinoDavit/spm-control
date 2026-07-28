@@ -26,6 +26,9 @@ def run_raster_scan(stage, detector, stop_event, output_path, progress_callback=
     stage.move(start_position)
     time.sleep(settle_time)
 
+
+    total_points = len(x_nodes) * len(y_nodes)
+
     completed_points = 0
     scan_start = time.time()
     stopped = False
@@ -68,7 +71,7 @@ def run_raster_scan(stage, detector, stop_event, output_path, progress_callback=
                 )
 
             if progress_callback is not None:
-                progress_callback(intensities)
+                progress_callback(intensities, completed_points)
 
             if stopped:
                 break

@@ -4,8 +4,6 @@ from spm_control.gui.layout import MAIN_LAYOUT
 from spm_control.work_in_progress_legacy_scripts import filter_scan
 from spm_control.managers.raster_manager import RasterManager
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 from pathlib import Path
 
 import time
@@ -56,7 +54,7 @@ class Scan_Page():
         page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.2)
 
 
-        self.raster_manager = RasterManager(self.app, self.app.hardware_manager)
+        self.raster_manager = RasterManager(self.app, self.app.hardware_manager, time_manager=self.app.time_manager)
         p.RunFrame = page_helpers.createFrame(p, "third_row", [0.2, 0.9, 0.25, 0.05])
         p.Run = page_helpers.createButton(p.RunFrame, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
 
@@ -64,7 +62,7 @@ class Scan_Page():
         confirm_msg = "Please confirm you want to stop the scan, data will not be saved!"
         def stop_scan():
             self.raster_manager.stop()
-        p.Stop = page_helpers.createButton(p.StopFrame, "Stop", 5, lambda: page_helpers.confirmation(confirm_msg, nextCall=stop_scan), color="#c62828")
+        p.Stop = page_helpers.createButton(p.StopFrame, "Stop", 5, lambda: page_helpers.confirmation(confirm_msg, nextCall=stop_scan), color="#c62828", hcolor="#8B0000")
 
     def start_scan(self):
         try:

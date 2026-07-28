@@ -6,6 +6,6 @@ MAIN_LAYOUT = {
     "mode_options": (0.06, 0, 0.744, 0.1),
     "mode_display": (0.06, 0.1, 0.744, 0.8),
     "option_parameters": (0.805, 0.1, 0.19, 0.6),
-    "counts": (0.805, 0.7, 0.19,0.3),
+    "live_display": (0.805, 0.7, 0.19,0.3),
     "file_display":(0.06, 0.9, 0.744, 0.1)
 }

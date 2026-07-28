@@ -28,9 +28,10 @@ def get_exp_num(folder_path, suffix="_pq"):
 
 
 class RasterManager:
-    def __init__(self, gui_root, hardware_manager):
+    def __init__(self, gui_root, hardware_manager, time_manager=None):
         self.gui_root = gui_root
         self.hardware_manager = hardware_manager
+        self.time_manager = time_manager
         self.thread = None
         self.stop_event = threading.Event()
 
@@ -55,8 +56,10 @@ class RasterManager:
         self.raster_image = None
         self.raster_colorbar = None
 
-    def publish_raster_update(self, intensities):
-        # Callback function for after raster loop scans a column
+    def publish_raster_update(self, intensities, completed_points=None):
+        if completed_points is not None and self.time_manager is not None:
+            self.time_manager.update(completed_points)
+
         if self.raster_figure is None or self.raster_image is None or self.raster_colorbar is None:
             return
 
@@ -70,6 +73,7 @@ class RasterManager:
         )
 
     def start(self):
+        
         if self.is_running():
             raise RuntimeError("A raster scan is already running.")
 
@@ -87,6 +91,11 @@ class RasterManager:
         x_nodes = np.linspace(x_min, x_max, int((x_max - x_min) / resolution) + 1).round(3)
         y_nodes = np.linspace(y_min, y_max, int((y_max - y_min) / resolution) + 1).round(3)
         # Calculating piezo motion axis based on resolution
+
+        total_points = len(x_nodes) * len(y_nodes)
+
+        if self.time_manager is not None:
+            self.time_manager.start(total_units=total_points)
 
         today = datetime.today().strftime("%Y-%m-%d")
         scan_folder = Path(scan_settings["folder_path"]) / today
@@ -200,8 +209,6 @@ class RasterManager:
                     )
                 finally:
                     self.hardware_manager.set_operation("idle")
-
-            self.publish_raster_update(self.last_result["intensities"])
 
             if self.last_result.get("stopped", False):
                 self.active_data["status"] = "stopped"

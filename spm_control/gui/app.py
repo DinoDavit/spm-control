@@ -1,8 +1,10 @@
 from spm_control.gui.modes.scan import Scan_Page
 from spm_control.gui.modes.explorer import Explorer_Page
 from spm_control.gui.modes.machine_learning import ML_Page
-from spm_control.gui.live_display import Live_Display
+from spm_control.gui.count_display  import Count_Display
+from spm_control.gui.time_display  import Time_Display
 from spm_control.managers.hardware_manager import HardwareManager
+from spm_control.managers.time_manager import TimeManager
 
 import customtkinter as ctk
 
@@ -23,11 +25,20 @@ class Application(ctk.CTk):
         max_height = self.winfo_screenheight()
         self.geometry(f"{max_width}x{max_height}")
 
+        self.panels = page_helpers.createPanels(self, MAIN_LAYOUT)
+
         self.hardware_manager = HardwareManager()
 
-        self.panels = page_helpers.createPanels(self, MAIN_LAYOUT)
         self.build_mode_toolbar()
-        self.CreateLiveDisplay()
+        self.CreateTimeDisplay()
+
+        self.time_manager = TimeManager(
+            gui_root=self,
+            update_callback=self.time_display.update_time,
+            status_callback=self.time_display.update_status
+        )
+
+        self.CreateCountDisplay()
 
         self.protocol("WM_DELETE_WINDOW", self.close_app)
 
@@ -54,8 +65,12 @@ class Application(ctk.CTk):
     def OpenMLMenu(self):
         self.ML_page = ML_Page(self)
 
-    def CreateLiveDisplay(self):
-        self.live_display = Live_Display(self, parent=self.panels["counts"])
+    def CreateCountDisplay(self):
+        self.count_display = Count_Display(self, parent=self.panels["live_display"])
+
+    def CreateTimeDisplay(self):
+        self.time_display = Time_Display(self, parent=self.panels["live_display"])
+
 
     def close_app(self):
         if hasattr(self, "live_display"):

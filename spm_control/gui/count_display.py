@@ -2,7 +2,7 @@ from spm_control.gui.modes import page_helpers
 from spm_control.managers.count_manager import CountManager
 
 
-class Live_Display:
+class Count_Display:
     def __init__(self, app, parent):
         self.app = app
         self.parent = parent
@@ -10,16 +10,17 @@ class Live_Display:
         self.ch1_frame = page_helpers.createFrame(
             parent,
             "channel_1",
-            [0.05, 0.08, 0.9, 0.4],
+            [0.05, 0.01, 0.9, 0.32],
             outline=True
         )
 
         self.ch2_frame = page_helpers.createFrame(
             parent,
             "channel_2",
-            [0.05, 0.52, 0.9, 0.4],
+            [0.05, 0.33, 0.9, 0.32],
             outline=True
         )
+
 
         self.ch1_entry, self.ch1_value = page_helpers.createDisplayEntry(
             self.ch1_frame,
@@ -30,6 +31,7 @@ class Live_Display:
             self.ch2_frame,
             "Channel 2"
         )
+
 
         self.count_manager = CountManager(
             app,
@@ -60,6 +62,9 @@ class Live_Display:
             self.ch1_value.set(message)
             self.ch2_value.set(message)
 
+
+    # Does not depend on any state stored
+    # Just a method used for formatting
     @staticmethod
     def format_count(count):
         if abs(count) < 10000:
