@@ -462,19 +462,25 @@ def confirmation(msg, T = "Confirm",nextCall = None):
     else:
         return
     
-def createSelection(parent, texts, default=None, command=None, spacing=6):
+def createSelection(
+    parent,
+    texts,
+    default=None,
+    command=None,
+    spacing=10,
+    edge_padding=12,
+    bg_color="#2b2b2b"
+):
     if not texts:
         raise ValueError("texts must contain at least one option")
 
     selected = ctk.StringVar(value=default or texts[0])
 
-    container = ctk.CTkFrame(parent, fg_color="#2b2b2b", corner_radius=6)
+    container = ctk.CTkFrame(parent, fg_color=bg_color, corner_radius=6)
     container.pack(fill="both", expand=True)
 
     row = ctk.CTkFrame(container, fg_color="transparent")
-    row.pack(fill="both", expand=True, padx=4, pady=4)
-
-    buttons = []
+    row.pack(fill="both", expand=True, padx=edge_padding, pady=4)
 
     def changed():
         if command:
@@ -486,28 +492,18 @@ def createSelection(parent, texts, default=None, command=None, spacing=6):
             text=text,
             value=text,
             variable=selected,
-            command=changed
+            command=changed,
+            font=ctk.CTkFont(size=15),
+            radiobutton_width=22,
+            radiobutton_height=22,
+            border_width_checked=5,
+            border_width_unchecked=3
         )
-        radio.pack(side="left", padx=(0, spacing) if i < len(texts) - 1 else 0)
-        buttons.append(radio)
 
-    def resize(event):
-        width = event.width
+        radio.pack(
+            side="left",
+            padx=(0, spacing) if i < len(texts) - 1 else 0,
+            pady=2
+        )
 
-        font_size = max(10, min(16, int(width / 18)))
-        radio_size = max(12, min(22, int(width / 13)))
-        border_width = max(2, int(radio_size / 5))
-        option_width = max(45, int((width - spacing - 12) / len(buttons)))
-
-        for radio in buttons:
-            radio.configure(
-                width=option_width,
-                font=ctk.CTkFont(size=font_size),
-                radiobutton_width=radio_size,
-                radiobutton_height=radio_size,
-                border_width_unchecked=border_width,
-                border_width_checked=border_width
-            )
-
-    container.bind("<Configure>", resize)
     return selected
