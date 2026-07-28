@@ -32,5 +32,5 @@ class TTTR_Page:
             p.first_row, "Aquisition Time (s)", numbered_entry=True, placeholder="e.g. 1200"
         )
 
-        p.second_row = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.8, 0.08])
+        p.second_row = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.5, 0.08])
         p.mode = page_helpers.createSelection(p.second_row, ["T2", "T3"])
