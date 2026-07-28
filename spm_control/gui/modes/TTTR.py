@@ -17,6 +17,7 @@ class TTTR_Page:
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
         self.app = app
+        self.OpenTTTRMenu()
 
     def OpenTTTRMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
@@ -31,5 +32,5 @@ class TTTR_Page:
             p.first_row, "Aquisition Time (s)", numbered_entry=True, placeholder="e.g. 1200"
         )
 
-        p.second_rowTTTT = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.5, 0.05])
-        p.mode = page_helpers.createSelection(p, ["T2, T3"])
+        p.second_row = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.8, 0.08])
+        p.mode = page_helpers.createSelection(p.second_row, ["T2", "T3"])

@@ -462,23 +462,52 @@ def confirmation(msg, T = "Confirm",nextCall = None):
     else:
         return
     
-    def createSelection(parent, texts, default=None, command=None, orientation="horizontal"):
-        if not texts:
-            raise ValueError("texts must contain at least one option")
+def createSelection(parent, texts, default=None, command=None, spacing=6):
+    if not texts:
+        raise ValueError("texts must contain at least one option")
 
-        selected = ctk.StringVar(value=default if default is not None else texts[0])
-        frame = ctk.CTkFrame(parent, fg_color="transparent")
+    selected = ctk.StringVar(value=default or texts[0])
 
-        side = "left" if orientation == "horizontal" else "top"
-        for text in texts:
-            radio = ctk.CTkRadioButton(
-                frame,
-                text=text,
-                value=text,
-                variable=selected,
-                command=lambda: command(selected.get()) if command else None
+    container = ctk.CTkFrame(parent, fg_color="#2b2b2b", corner_radius=6)
+    container.pack(fill="both", expand=True)
+
+    row = ctk.CTkFrame(container, fg_color="transparent")
+    row.pack(fill="both", expand=True, padx=4, pady=4)
+
+    buttons = []
+
+    def changed():
+        if command:
+            command(selected.get())
+
+    for i, text in enumerate(texts):
+        radio = ctk.CTkRadioButton(
+            row,
+            text=text,
+            value=text,
+            variable=selected,
+            command=changed
+        )
+        radio.pack(side="left", padx=(0, spacing) if i < len(texts) - 1 else 0)
+        buttons.append(radio)
+
+    def resize(event):
+        width = event.width
+
+        font_size = max(10, min(16, int(width / 18)))
+        radio_size = max(12, min(22, int(width / 13)))
+        border_width = max(2, int(radio_size / 5))
+        option_width = max(45, int((width - spacing - 12) / len(buttons)))
+
+        for radio in buttons:
+            radio.configure(
+                width=option_width,
+                font=ctk.CTkFont(size=font_size),
+                radiobutton_width=radio_size,
+                radiobutton_height=radio_size,
+                border_width_unchecked=border_width,
+                border_width_checked=border_width
             )
-            radio.pack(side=side, fill="both", expand=True, padx=5, pady=5)
 
-        frame.pack(fill="both", expand=True)
-        return selected
+    container.bind("<Configure>", resize)
+    return selected

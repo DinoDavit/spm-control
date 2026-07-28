@@ -49,7 +49,7 @@ class Application(ctk.CTk):
             "scan": self.OpenScanMenu,
             "ML": self.OpenMLMenu,
             "folders": self.OpenExplorerMenu,
-            "g2": self.OpenG2Menu
+            "g2_better": self.OpenTTTRMenu
         }
 
         page_helpers.createToolbar(
