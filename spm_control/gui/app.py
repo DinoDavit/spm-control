@@ -1,6 +1,8 @@
 from spm_control.gui.modes.scan import Scan_Page
 from spm_control.gui.modes.explorer import Explorer_Page
 from spm_control.gui.modes.machine_learning import ML_Page
+from spm_control.gui.modes.TTTR import TTTR_Page
+
 from spm_control.gui.count_display  import Count_Display
 from spm_control.gui.time_display  import Time_Display
 from spm_control.managers.hardware_manager import HardwareManager
@@ -47,6 +49,7 @@ class Application(ctk.CTk):
             "scan": self.OpenScanMenu,
             "ML": self.OpenMLMenu,
             "folders": self.OpenExplorerMenu,
+            "g2": self.OpenG2Menu
         }
 
         page_helpers.createToolbar(
@@ -65,11 +68,15 @@ class Application(ctk.CTk):
     def OpenMLMenu(self):
         self.ML_page = ML_Page(self)
 
+    def OpenTTTRMenu(self):
+        self.TTTR_page = TTTR_Page(self)
+
     def CreateCountDisplay(self):
         self.count_display = Count_Display(self, parent=self.panels["live_display"])
 
     def CreateTimeDisplay(self):
         self.time_display = Time_Display(self, parent=self.panels["live_display"])
+
 
 
     def close_app(self):

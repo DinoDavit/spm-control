@@ -461,3 +461,24 @@ def confirmation(msg, T = "Confirm",nextCall = None):
         nextCall()
     else:
         return
+    
+    def createSelection(parent, texts, default=None, command=None, orientation="horizontal"):
+        if not texts:
+            raise ValueError("texts must contain at least one option")
+
+        selected = ctk.StringVar(value=default if default is not None else texts[0])
+        frame = ctk.CTkFrame(parent, fg_color="transparent")
+
+        side = "left" if orientation == "horizontal" else "top"
+        for text in texts:
+            radio = ctk.CTkRadioButton(
+                frame,
+                text=text,
+                value=text,
+                variable=selected,
+                command=lambda: command(selected.get()) if command else None
+            )
+            radio.pack(side=side, fill="both", expand=True, padx=5, pady=5)
+
+        frame.pack(fill="both", expand=True)
+        return selected
