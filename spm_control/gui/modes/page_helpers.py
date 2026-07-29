@@ -326,37 +326,58 @@ def createLabel(
 
     return label
 
-def bind_entry(entry, nextE=None, min_val = 0, max_val = 100, multi=0, ranged=False, emptyOk = False):
-    if (min_val or max_val):
-            entry.bind("<FocusOut>", lambda event: check.within_range(
-                entry, 
-                min_val, 
-                max_val, 
-                multiple = multi, 
+def bind_entry(
+    entry,
+    nextE=None,
+    min_val=0,
+    max_val=100,
+    multi=0,
+    ranged=False,
+    emptyOk=False
+):
+    if min_val is not None or max_val is not None:
+        entry.bind(
+            "<FocusOut>",
+            lambda event: check.within_range(
+                entry,
+                min_val,
+                max_val,
+                multiple=multi,
                 ranged_input=ranged,
-                next_entry = nextE,
                 EnterKey=False,
-                emptyOk = emptyOk),
-                )
-            
-            entry.bind("<Return>", lambda event: check.within_range(
-                entry, 
-                min_val, 
-                max_val, 
-                multiple=multi,
-                emptyOk = emptyOk),
-                )
-    else:
-        entry.bind("<Return>", lambda event: check.within_range(
-                entry, 
-                min_val, 
-                max_val, 
-                multiple=multi,
-                emptyOk = emptyOk),
-                )
+                emptyOk=emptyOk
+            )
+        )
 
-def get_file(panels):
-    return panels["file_display"].path_entry.get()
+        entry.bind(
+            "<Return>",
+            lambda event: check.within_range(
+                entry,
+                min_val,
+                max_val,
+                multiple=multi,
+                ranged_input=ranged,
+                next_entry=nextE,
+                EnterKey=True,
+                emptyOk=emptyOk
+            )
+        )
+    else:
+        entry.bind(
+            "<Return>",
+            lambda event: check.within_range(
+                entry,
+                min_val,
+                max_val,
+                multiple=multi,
+                next_entry=nextE,
+                EnterKey=True,
+                emptyOk=emptyOk
+            )
+        )
+
+def get_file(file_display):
+    return file_display.get_path()
 
 def throwError(message):
     messagebox.showerror("Error", message)

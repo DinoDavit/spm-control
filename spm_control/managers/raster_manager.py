@@ -233,6 +233,8 @@ class RasterManager:
                 self._save_scan_plots()
                 self.active_data["status"] = "complete" 
 
+                self.gui_root.after(0, self.gui_root.file_display.set_path, self.active_data["data_file"])
+
         except Exception as error:
             self.error = error
 
@@ -260,9 +262,18 @@ class RasterManager:
             if path and path.exists():
                 path.unlink()
 
-    def move_piezo(self, x, y, z):
+    def move_piezo(self):
         if self.is_running():
-            raise RuntimeError("Cannot manually move the piezo during a raster scan.")
+            raise RuntimeError("Cannot move the piezo while a raster scan is running.")
+
+        move_settings = config.load_named_settings(
+            "move",
+            config.SCAN_CONFIG
+        )
+
+        x = float(move_settings["x"])
+        y = float(move_settings["y"])
+        z = float(move_settings["z"])
 
         stage_settings = config.load_named_settings(
             "stage",
@@ -277,15 +288,15 @@ class RasterManager:
 
         try:
             stage.connect()
+            stage.move({
+                "1": x,
+                "2": y,
+                "3": z
+            })
 
-            position = {
-                "1": float(x),
-                "2": float(y),
-                "3": float(z)
-            }
-
-            stage.move(position)
-            return stage.position()
+            actual_position = stage.position()
+            print(f"Piezo moved to: {actual_position}")
+            return actual_position
 
         finally:
             stage.close()

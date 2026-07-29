@@ -5,6 +5,7 @@ from spm_control.gui.modes.TTTR import TTTR_Page
 
 from spm_control.gui.count_display  import Count_Display
 from spm_control.gui.time_display  import Time_Display
+from spm_control.gui.file_display import FileDisplay
 from spm_control.managers.hardware_manager import HardwareManager
 from spm_control.managers.time_manager import TimeManager
 from spm_control.gui.main_display import MainDisplay
@@ -45,6 +46,7 @@ class Application(ctk.CTk):
         )
 
         self.CreateCountDisplay()
+        self.CreateFileDisplay()
 
         self.protocol("WM_DELETE_WINDOW", self.close_app)
 
@@ -90,6 +92,9 @@ class Application(ctk.CTk):
 
     def CreateTimeDisplay(self):
         self.time_display = Time_Display(self, parent=self.panels["live_display"])
+
+    def CreateFileDisplay(self):
+        self.file_display = FileDisplay(self.panels["file_display"])
 
 
 

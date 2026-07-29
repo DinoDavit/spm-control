@@ -46,12 +46,12 @@ class Scan_Page():
         p.fourth_row = page_helpers.createFrame(p, "third_row", [0.13, 0.34, 0.47, 0.05])
         p.entries["resolution"] = page_helpers.createSingleEntry(p.fourth_row, "Resolution")
 
-        page_helpers.bind_entry(p.entries["x_min"], nextE=p.entries["x_max"], min_val=0, max_val=100, multi=0.1, ranged=True)
-        page_helpers.bind_entry(p.entries["x_max"], nextE=p.entries["y_min"], min_val=0, max_val=100, multi=0.1)
-        page_helpers.bind_entry(p.entries["y_min"], nextE=p.entries["y_max"], min_val=0, max_val=100, multi=0.1, ranged=True)
-        page_helpers.bind_entry(p.entries["y_max"], nextE=p.entries["z_focus"], min_val=0, max_val=100, multi=0.1)
+        page_helpers.bind_entry(p.entries["x_min"], nextE=p.entries["x_max"], min_val=0, max_val=100, ranged=True)
+        page_helpers.bind_entry(p.entries["x_max"], nextE=p.entries["y_min"], min_val=0, max_val=100)
+        page_helpers.bind_entry(p.entries["y_min"], nextE=p.entries["y_max"], min_val=0, max_val=100, ranged=True)
+        page_helpers.bind_entry(p.entries["y_max"], nextE=p.entries["z_focus"], min_val=0, max_val=100)
         page_helpers.bind_entry(p.entries["z_focus"], nextE=p.entries["resolution"], min_val=0, max_val=20)
-        page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25, multi=0.1)
+        page_helpers.bind_entry(p.entries["resolution"], min_val=0.2, max_val=25)
 
 
         self.raster_manager = RasterManager(self.app, self.app.hardware_manager, time_manager=self.app.time_manager)
@@ -72,7 +72,7 @@ class Scan_Page():
 
     def OpenFilterMenu(self):
         ch = 0
-        file_path = page_helpers.get_file(self.panels)
+        file_path = page_helpers.get_file(self.app.file_display)
 
         path = Path(file_path)
         stem = path.stem
@@ -86,7 +86,7 @@ class Scan_Page():
             base = stem.removesuffix("_ch2")
             ch = 2
         else:
-            if ("run" not in stem):
+            if ("pq" not in stem):
                 page_helpers.throwError("Please select a valid raster scan file.")
             base = stem
 
@@ -95,7 +95,7 @@ class Scan_Page():
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
 
-        Scan_Data = page_helpers.get_file(self.panels)
+        Scan_Data = page_helpers.get_file(self.app.file_display)
         Scan_Config = Path(__file__).resolve().parents[3] / "config_files" / "scan.yaml"
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
@@ -136,17 +136,17 @@ class Scan_Page():
         p.entries["x"]= page_helpers.createSingleEntry(p.first_row, "x (µm)", "ex 30.2", numbered_entry=True, min_val=0, max_val=100)
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.6, 0.05])
         p.entries["y"] = page_helpers.createSingleEntry(p.second_row, "y (µm)", "ex 80.5", numbered_entry=True, min_val=0, max_val=100)
-        p.third_row = page_helpers.createSingleEntry(p, "third_row", [0.1, 0.24, 0.6, 0.05])
+        p.third_row = page_helpers.createFrame(p, "third_row", [0.1, 0.26, 0.6, 0.05])
         p.entries["z"] = page_helpers.createSingleEntry(p.third_row, "z-focus (µm)", "ex 10.2", numbered_entry=True)
-        p.fourth_row = page_helpers.createButton(p, "Move Piezo-Stage", 5, config.update(p.entries, "move", Scan_Config, MovePiezo))
+        p.fourth_row = page_helpers.createFrame(p, "fourth_row", [0.1, 0.5, 0.6, 0.05])
+        p.move = page_helpers.createButton(p.fourth_row, "Move Piezo-Stage", 5, lambda: config.update(p.entries, "move", Scan_Config, 
+                                                                                         nextCall=self.raster_manager.move_piezo))
 
-        def MovePiezo
 
 
-
-        page_helpers.bind_entry(p.entries["x"], nextE=p.entries["y"], min_val=0, max_val=100, multi=0.1, ranged=True)
-        page_helpers.bind_entry(p.entries["y"], nextE=p.entries["z"], min_val=0, max_val=100, multi=0.1, ranged=True)
-        page_helpers.bind_entry(p.entries["z"], min_val=0, max_val=20, multi=0.1)
+        page_helpers.bind_entry(p.entries["x"], nextE=p.entries["y"], min_val=0, max_val=100, ranged=True)
+        page_helpers.bind_entry(p.entries["y"], nextE=p.entries["z"], min_val=0, max_val=100, ranged=True)
+        page_helpers.bind_entry(p.entries["z"], min_val=0, max_val=20)
     def build_mode_ops(self):
         p = self.mode_options
         options_loadout = {

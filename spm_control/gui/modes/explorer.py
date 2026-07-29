@@ -1,8 +1,6 @@
 from pathlib import Path
 from tkinter import filedialog
 
-import customtkinter as ctk
-
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
 
@@ -13,55 +11,99 @@ class Explorer_Page:
             "mode_options",
             "mode_display",
             "option_parameters",
-            "file_display",
         }
 
         self.app = app
         self.panels = app.panels
 
-        page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels, notMain=True)
-        page_helpers.load_required_panels(self, self.panels, required_panels)
+        page_helpers.reload_panels(
+            self.panels,
+            MAIN_LAYOUT,
+            required_panels,
+            notMain=True
+        )
+
+        page_helpers.load_required_panels(
+            self,
+            self.panels,
+            required_panels
+        )
 
         self.OpenFolderMenu()
-        self.CreateFileDisplay()
 
     def OpenFolderMenu(self):
-        p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
+        p = page_helpers.reload_panel(
+            self.panels,
+            MAIN_LAYOUT,
+            "option_parameters"
+        )
+
         p.entries = {}
 
-        p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
+        p.title_frame = page_helpers.createFrame(
+            p,
+            "title_frame",
+            [0, 0, 1, 0.1],
+            outline=True
+        )
         p.title_frame.pack_propagate(False)
-        p.title = page_helpers.createLabel(p.title_frame, "Folder Menu", sz=24, side="top", y_space=(4, 4))
 
-        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.7, 0.05])
+        p.title = page_helpers.createLabel(
+            p.title_frame,
+            "Folder Menu",
+            sz=24,
+            side="top",
+            y_space=(4, 4)
+        )
+
+        p.first_row = page_helpers.createFrame(
+            p,
+            "first_row",
+            [0.1, 0.12, 0.7, 0.05]
+        )
         p.entries["filter_name"] = page_helpers.createSingleEntry(
-            p.first_row, "Filter", numbered_entry=False, placeholder="e.g. g2"
+            p.first_row,
+            "Filter",
+            numbered_entry=False,
+            placeholder="e.g. g2"
         )
 
-        p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.19, 0.7, 0.05])
+        p.second_row = page_helpers.createFrame(
+            p,
+            "second_row",
+            [0.1, 0.19, 0.7, 0.05]
+        )
         p.entries["extension"] = page_helpers.createSingleEntry(
-            p.second_row, "Extension", numbered_entry=False, placeholder="e.g. txt"
+            p.second_row,
+            "Extension",
+            numbered_entry=False,
+            placeholder="e.g. txt"
         )
 
-        page_helpers.bind_entry(p.entries["filter_name"], min_val=None, max_val=None)
-        page_helpers.bind_entry(p.entries["extension"], min_val=None, max_val=None, nextE=p.entries["extension"])
-
-        p.last_row = page_helpers.createFrame(p, "third_row", [0.3, 0.8, 0.4, 0.05])
-        p.Select_File = page_helpers.createButton(
-            p.last_row, "Select File", 5, self.select_and_display_file
+        page_helpers.bind_entry(
+            p.entries["filter_name"],
+            min_val=None,
+            max_val=None
         )
 
-    def CreateFileDisplay(self):
-        p = self.panels["file_display"]
-        p.path_display = page_helpers.createFrame(p, "path_display", [0, 0, 1, 0.5], outline=True)
-
-        p.path_entry = ctk.CTkEntry(
-            p.path_display,
-            placeholder_text="Selected file path",
-            text_color="#67E8F9"
+        page_helpers.bind_entry(
+            p.entries["extension"],
+            min_val=None,
+            max_val=None
         )
-        p.path_entry.pack(fill="both", expand=True, padx=3, pady=3)
-        p.path_entry.configure(state="readonly")
+
+        p.last_row = page_helpers.createFrame(
+            p,
+            "third_row",
+            [0.3, 0.8, 0.4, 0.05]
+        )
+
+        p.select_file = page_helpers.createButton(
+            p.last_row,
+            "Select File",
+            5,
+            self.select_and_display_file
+        )
 
     def select_and_display_file(self):
         p = self.panels["option_parameters"]
@@ -87,17 +129,19 @@ class Explorer_Page:
 
         file_name = Path(selected_file).name
 
-        if filter_name and filter_name.casefold() not in file_name.casefold():
+        if (
+            filter_name
+            and filter_name.casefold() not in file_name.casefold()
+        ):
+            page_helpers.throwError(
+                f"Selected file does not contain '{filter_name}'."
+            )
             return
 
-        file_panel = self.panels["file_display"]
-        file_panel.path_entry.configure(state="normal")
-        file_panel.path_entry.delete(0, "end")
-        file_panel.path_entry.insert(0, selected_file)
-        file_panel.path_entry.configure(state="readonly")
-
         try:
+            self.app.file_display.set_path(selected_file)
             self.app.main_display.display_selected_file(selected_file)
             print("Selected file:", selected_file)
+
         except Exception as error:
             page_helpers.throwError(str(error))
