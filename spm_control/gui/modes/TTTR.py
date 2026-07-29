@@ -62,7 +62,6 @@ class TTTR_Page:
             p.first_row, "Acquisition Time (s)", numbered_entry=True, placeholder="e.g. 1200"
         )
 
-<<<<<<< HEAD
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.2, 0.5, 0.08])
         p.mode = page_helpers.createSelection(p.second_row, ["T2", "T3"], spacing=6)
 
@@ -86,7 +85,5 @@ class TTTR_Page:
         }
 
         page_helpers.createToolbar(self.mode_options, options_loadout, 0.08)
-=======
         p.second_row = page_helpers.createFrame(p, "first_row", [0.1, 0.2, 0.5, 0.08])
         p.mode = page_helpers.createSelection(p.second_row, ["T2", "T3"])
->>>>>>> 863ee60987e5ef751dbb1630b5198da340bd8677
