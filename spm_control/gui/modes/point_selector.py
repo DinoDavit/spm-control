@@ -28,9 +28,19 @@ class PointSelector:
         self.selected_point = None
 
         if self.marker is not None:
-            self.marker.remove()
+            try:
+                self.marker.remove()
+            except ValueError:
+                pass
+
             self.marker = None
             self.canvas.draw_idle()
+
+    
+
+    def cleanup(self):
+        self.disable()
+        self.clear()
 
     def _on_click(self, event):
         if event.inaxes is not self.axes:
@@ -49,10 +59,12 @@ class PointSelector:
         self.marker, = self.axes.plot(
             x,
             y,
-            marker="o",
+            marker="+",
             markersize=8,
-            markerfacecolor="none",
-            markeredgewidth=2
+            markeredgewidth=2,
+            color="red",
+            linestyle="none",
+            zorder=4
         )
 
         self.canvas.draw_idle()

@@ -1,10 +1,10 @@
+from pathlib import Path
+from tkinter import filedialog
+
+import customtkinter as ctk
 
 from spm_control.gui.modes import page_helpers
 from spm_control.gui.layout import MAIN_LAYOUT
-from pathlib import Path
-from tkinter import filedialog
-import customtkinter as ctk
-import time
 
 
 class Explorer_Page:
@@ -16,12 +16,12 @@ class Explorer_Page:
             "file_display",
         }
 
+        self.app = app
         self.panels = app.panels
+
         page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels, notMain=True)
-        time.sleep(0.05)
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
-        self.app = app
         self.OpenFolderMenu()
         self.CreateFileDisplay()
 
@@ -55,7 +55,11 @@ class Explorer_Page:
         p = self.panels["file_display"]
         p.path_display = page_helpers.createFrame(p, "path_display", [0, 0, 1, 0.5], outline=True)
 
-        p.path_entry = ctk.CTkEntry(p.path_display, placeholder_text="Selected file path", text_color="#67E8F9")
+        p.path_entry = ctk.CTkEntry(
+            p.path_display,
+            placeholder_text="Selected file path",
+            text_color="#67E8F9"
+        )
         p.path_entry.pack(fill="both", expand=True, padx=3, pady=3)
         p.path_entry.configure(state="readonly")
 
@@ -92,27 +96,8 @@ class Explorer_Page:
         file_panel.path_entry.insert(0, selected_file)
         file_panel.path_entry.configure(state="readonly")
 
-        display(self.panels["mode_display"], selected_file)
-
-
-def display(panel, file_path):
-    for widget in panel.winfo_children():
-        widget.destroy()
-
-    extension = Path(file_path).suffix.lower()
-
-    if extension == ".png":
-        mini_display = page_helpers.createFrame(panel, "mini_display", [0.1, 0.005, 0.8, 0.99], outline=True)
-        page_helpers.displayImage(mini_display, file_path)
-    elif extension == ".txt":
-        display_txt(panel, file_path)
-
-
-def display_txt(panel, file_path):
-    with open(file_path, "r", encoding="utf-8", errors="replace") as file:
-        content = file.read()
-
-    text_box = ctk.CTkTextbox(panel, wrap="word")
-    text_box.pack(fill="both", expand=True)
-    text_box.insert("1.0", content)
-    text_box.configure(state="disabled")
+        try:
+            self.app.main_display.display_selected_file(selected_file)
+            print("Selected file:", selected_file)
+        except Exception as error:
+            page_helpers.throwError(str(error))

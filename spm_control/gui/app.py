@@ -7,6 +7,7 @@ from spm_control.gui.count_display  import Count_Display
 from spm_control.gui.time_display  import Time_Display
 from spm_control.managers.hardware_manager import HardwareManager
 from spm_control.managers.time_manager import TimeManager
+from spm_control.gui.main_display import MainDisplay
 
 import customtkinter as ctk
 
@@ -21,6 +22,8 @@ ctk.set_default_color_theme("blue")
 class Application(ctk.CTk):
     def __init__(self):
         super().__init__()
+        self.current_page = None
+
         self.title("SPM App")
 
         max_width = self.winfo_screenwidth()
@@ -31,6 +34,7 @@ class Application(ctk.CTk):
 
         self.hardware_manager = HardwareManager()
 
+        self.main_display = MainDisplay(app=self, parent=self.panels["mode_display"])
         self.build_mode_toolbar()
         self.CreateTimeDisplay()
 
@@ -59,17 +63,27 @@ class Application(ctk.CTk):
             horizontal=False
         )
 
+
+    def open_page(self, page_class):
+        self.cleanup_current_page()
+        self.current_page = page_class(self)
+        return self.current_page
+
+    def cleanup_current_page(self):
+        if self.current_page is not None and hasattr(self.current_page, "cleanup"):
+            self.current_page.cleanup()
+
     def OpenScanMenu(self):
-        self.Scan_page = Scan_Page(self)
+        self.Scan_page = self.open_page(Scan_Page)
 
     def OpenExplorerMenu(self):
-        self.Explorer_page = Explorer_Page(self)
+        self.Explorer_page = self.open_page(Explorer_Page)
 
     def OpenMLMenu(self):
-        self.ML_page = ML_Page(self)
+        self.ML_page = self.open_page(ML_Page)
 
     def OpenTTTRMenu(self):
-        self.TTTR_page = TTTR_Page(self)
+            self.TTTR_page = self.open_page(TTTR_Page)
 
     def CreateCountDisplay(self):
         self.count_display = Count_Display(self, parent=self.panels["live_display"])

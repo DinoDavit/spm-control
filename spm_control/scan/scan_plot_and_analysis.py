@@ -76,3 +76,85 @@ def save_raster_plot(intensities, x_nodes, y_nodes, output_path, title):
     fig.colorbar(image, ax=ax, label="Intensity")
     fig.tight_layout()
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
+
+
+
+def create_saved_raster_plot(file_path, channel=0, vmin=None, vmax=None):
+    data = np.loadtxt(file_path, dtype=float, delimiter=",")
+
+    if data.ndim == 1:
+        data = data.reshape(1, -1)
+
+    if data.shape[1] < 5:
+        raise ValueError("Scan data must contain X, Y, Z, channel 1, and channel 2.")
+
+    xs = data[:, 0]
+    ys = data[:, 1]
+    ch1 = data[:, 3]
+    ch2 = data[:, 4]
+
+    reset_indices = np.where(np.diff(ys) < 0)[0]
+
+    if reset_indices.size:
+        y_count = int(reset_indices[0] + 1)
+    else:
+        raise ValueError("Could not determine the raster dimensions from the scan data.")
+
+    point_count = len(data)
+
+    if point_count % y_count != 0:
+        raise ValueError(
+            f"Scan contains {point_count} points, which cannot be reshaped "
+            f"using {y_count} Y positions."
+        )
+
+    x_count = point_count // y_count
+    shape = (x_count, y_count)
+
+    x_grid = xs.reshape(shape)
+    y_grid = ys.reshape(shape)
+    ch1_grid = ch1.reshape(shape)
+    ch2_grid = ch2.reshape(shape)
+
+    if channel == 0:
+        intensities = ch1_grid + ch2_grid
+        title = "Combined Channels"
+    elif channel == 1:
+        intensities = ch1_grid
+        title = "Channel 1"
+    elif channel == 2:
+        intensities = ch2_grid
+        title = "Channel 2"
+    else:
+        raise ValueError("Channel must be 0, 1, or 2.")
+
+    xlim = (float(np.nanmin(x_grid)), float(np.nanmax(x_grid)))
+    ylim = (float(np.nanmin(y_grid)), float(np.nanmax(y_grid)))
+
+    figure, image, colorbar = create_live_raster_plot(
+        xlim=xlim,
+        ylim=ylim,
+        shape=shape,
+        vmin=vmin,
+        vmax=vmax
+    )
+
+    image.set_data(intensities.T)
+    image.axes.set_title(title)
+
+    valid = intensities[np.isfinite(intensities)]
+
+    if valid.size:
+        display_min = float(valid.min()) if vmin is None else float(vmin)
+        display_max = float(valid.max()) if vmax is None else float(vmax)
+
+        if display_min == display_max:
+            display_min = 0
+            display_max = max(display_max, 1)
+
+        image.set_clim(display_min, display_max)
+        colorbar.update_normal(image)
+
+    figure.canvas.draw_idle()
+
+    return figure, image, colorbar

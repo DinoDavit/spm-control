@@ -9,7 +9,6 @@ import spm_control.config as config
 from spm_control.scan import scan_plot_and_analysis as spa
 from spm_control.hardware.piezo_stage import PIStage
 from spm_control.scan.raster import run_raster_scan
-from spm_control.managers.hardware_manager import HardwareManager
 
 
 def get_exp_num(folder_path, suffix="_pq"):
@@ -25,7 +24,6 @@ def get_exp_num(folder_path, suffix="_pq"):
     # Looks for files in the folder_path designated and counts them if the match the suffix
 
     return most_recent + 1
-
 
 class RasterManager:
     def __init__(self, gui_root, hardware_manager, time_manager=None):
@@ -52,6 +50,11 @@ class RasterManager:
         return self.active_data
 
     def clear_live_plot(self):
+        main_display = getattr(self.gui_root, "main_display", None)
+
+        if main_display is not None and main_display.figure is self.raster_figure:
+            main_display.clear()
+
         self.raster_figure = None
         self.raster_image = None
         self.raster_colorbar = None
@@ -117,6 +120,18 @@ class RasterManager:
             xlim=(x_nodes[0], x_nodes[-1]),
             ylim=(y_nodes[0], y_nodes[-1]),
             shape=(len(x_nodes), len(y_nodes))
+        )
+
+        self.gui_root.main_display.display_plot(
+            figure=self.raster_figure,
+            axes=self.raster_image.axes,
+            source="live_raster",
+            metadata={
+                "x_nodes": x_nodes,
+                "y_nodes": y_nodes,
+                "image": self.raster_image,
+                "colorbar": self.raster_colorbar
+            }
         )
 
         self.active_data = {
@@ -244,3 +259,33 @@ class RasterManager:
         for path in paths:
             if path and path.exists():
                 path.unlink()
+
+    def move_piezo(self, x, y, z):
+        if self.is_running():
+            raise RuntimeError("Cannot manually move the piezo during a raster scan.")
+
+        stage_settings = config.load_named_settings(
+            "stage",
+            config.HARDWARE_CONFIG
+        )
+
+        stage = PIStage(
+            stage_settings["CONTROLLER_NAME"],
+            str(stage_settings["SERIAL_NUM"]),
+            [stage_settings["STAGE_MODEL"]] * stage_settings["NUM_AXES"]
+        )
+
+        try:
+            stage.connect()
+
+            position = {
+                "1": float(x),
+                "2": float(y),
+                "3": float(z)
+            }
+
+            stage.move(position)
+            return stage.position()
+
+        finally:
+            stage.close()
