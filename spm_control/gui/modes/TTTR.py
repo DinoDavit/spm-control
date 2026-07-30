@@ -19,24 +19,37 @@ class TTTR_Page:
         self.Scan_Config = core_config.SCAN_CONFIG
         self.Hardware_Config = core_config.HARDWARE_CONFIG
 
-        try:
-            canvas, axes = app.main_display.get_active_plot()
-        except RuntimeError as error:
-            messagebox.showerror("No Active Plot", str(error), parent=app)
-            raise
-
         self.tttr_manager = TTTRManager(gui_root=app, hardware_manager=app.hardware_manager, time_manager=app.time_manager)
         self.raster_manager = RasterManager(app, app.hardware_manager, time_manager=app.time_manager)
 
         page_helpers.reload_panels(self.panels, MAIN_LAYOUT, required_panels, notMain=True)
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
-        self.point_selector = PointSelector(canvas=canvas, axes=axes, callback=self.point_selected)
+        self.point_selector = None
 
         self.OpenTTTRMenu()
         self.build_mode_ops()
 
     def begin_point_selection(self):
+        try:
+            canvas, axes = self.app.main_display.get_active_plot()
+        except RuntimeError as error:
+            messagebox.showerror(
+                "No Active Plot",
+                str(error),
+                parent=self.app
+            )
+            return
+
+        if self.point_selector is not None:
+            self.point_selector.cleanup()
+
+        self.point_selector = PointSelector(
+            canvas=canvas,
+            axes=axes,
+            callback=self.point_selected
+        )
+
         self.point_selector.enable()
 
     def point_selected(self, point):
@@ -123,12 +136,14 @@ class TTTR_Page:
         self.mode_changed("T2")
 
     def OpenPlotterMenu(self):
-        print("TTTR plotter menu not implemented yet.")
+        p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
+        p.entries = {}
 
     def build_mode_ops(self):
         options_loadout = {"select_point": self.OpenTTTRMenu, "g2_plot": self.OpenPlotterMenu}
         page_helpers.createToolbar(self.mode_options, options_loadout, 0.08)
 
     def cleanup(self):
-        if hasattr(self, "point_selector"):
+        if self.point_selector is not None:
             self.point_selector.cleanup()
+            self.point_selector = None

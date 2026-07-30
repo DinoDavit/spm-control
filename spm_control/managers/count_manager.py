@@ -48,30 +48,50 @@ class CountManager:
 
     def _run(self):
         try:
-            detector = self.hardware_manager.connect_detector()
+            self.hardware_manager.connect_detector()
 
             while not self.stop_event.is_set():
-                acquired = self.hardware_manager.detector_lock.acquire(blocking=False)
-                # Status set to whether detector was able to be locked by count_manager
+                operation = self.hardware_manager.get_operation()
+
+                if operation != "idle":
+                    self._publish_status(operation)
+                    self.stop_event.wait(self.interval)
+                    continue
+
+                acquired = self.hardware_manager.detector_lock.acquire(
+                    blocking=False
+                )
 
                 if acquired:
                     try:
+                        # Always fetch the current detector.
+                        detector = self.hardware_manager.detector
+
+                        if detector is None:
+                            self._publish_status("disconnected")
+                            continue
+
                         counts = detector.poll_counts()
-                        # If acquired code proceeds
 
                         if len(counts) < 2:
-                            raise RuntimeError(f"Expected two detector channels, received: {counts}")
+                            raise RuntimeError(
+                                "Expected two detector channels, "
+                                f"received: {counts}"
+                            )
 
-                        ch1, ch2 = int(counts[0]), int(counts[1])
+                        ch1 = int(counts[0])
+                        ch2 = int(counts[1])
+
                     finally:
                         self.hardware_manager.detector_lock.release()
-                        # If thread not acquired then detector thread is released
 
                     self._publish_counts(ch1, ch2)
 
                 else:
-                    self._publish_status(self.hardware_manager.get_operation())
-                    # Otherwise basically fetch the current operation
+                    self._publish_status(
+                        self.hardware_manager.get_operation()
+                    )
+
                 self.stop_event.wait(self.interval)
 
         except Exception as error:

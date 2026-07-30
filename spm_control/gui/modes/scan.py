@@ -154,7 +154,7 @@ class Scan_Page():
         p.entries["y"] = page_helpers.createSingleEntry(p.second_row, "y (µm)", "ex 80.5", numbered_entry=True, min_val=0, max_val=100)
         p.third_row = page_helpers.createFrame(p, "third_row", [0.1, 0.26, 0.6, 0.05])
         p.entries["z"] = page_helpers.createSingleEntry(p.third_row, "z-focus (µm)", "ex 10.2", numbered_entry=True)
-        p.fourth_row = page_helpers.createFrame(p, "fourth_row", [0.1, 0.5, 0.6, 0.05])
+        p.fourth_row = page_helpers.createFrame(p, "fourth_row", [0.3, 0.9, 0.4, 0.05])
         p.move = page_helpers.createButton(p.fourth_row, "Move Piezo-Stage", 5, lambda: config.update(p.entries, "move", Scan_Config, 
                                                                                          nextCall=self.raster_manager.move_piezo))
 

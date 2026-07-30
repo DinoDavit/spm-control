@@ -95,7 +95,7 @@ class Explorer_Page:
         p.last_row = page_helpers.createFrame(
             p,
             "third_row",
-            [0.3, 0.8, 0.4, 0.05]
+            [0.3, 0.9, 0.4, 0.05]
         )
 
         p.select_file = page_helpers.createButton(
