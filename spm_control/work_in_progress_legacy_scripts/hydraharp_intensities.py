@@ -249,49 +249,181 @@ class HH400_Histo_Manager:
         return channel_intensities
     
     ### 2024-05-15: In progress, adding T2 mode to HH context manager
-    def t2_meas(self,filename, tacq=1000):
-        outputfile=open(str(filename),"wb+")
-        progress=0
-        sys.stdout.write("\nProgress:%9u" % progress)
-        sys.stdout.flush()       
-        self.tryfunc(hhlib.HH_StartMeas(ct.c_int(self.dev[0]), ct.c_int(tacq)), "StartMeas")
-        while self.ctcstatus.value == 0:
-            self.tryfunc(hhlib.HH_GetFlags(ct.c_int(self.dev[0]), byref(self.flags)), "GetFlags")
+    def run_tttr_measure(
+    self,
+    filename,
+    tacq=1000,
+    stop_event=None,
+    progress_callback=None,):
+        """
+        Acquire raw T2 or T3 TTTR records and write them directly to disk.
 
-            if self.flags.value & self.FLAG_FIFOFULL > 0:
-                print("\nFiFo Overrun!")
-                self.stoptttr()
+        Parameters
+        ----------
+        filename : str or Path
+            Destination raw binary file.
+        tacq : int
+            Acquisition time in milliseconds.
+        stop_event : threading.Event | None
+            Optional cancellation event.
+        progress_callback : callable | None
+            Called as progress_callback(total_records).
+        """
+        if self.mode not in (self.MODE_T2, self.MODE_T3):
+            raise RuntimeError(
+                "TTTR acquisition requires the HydraHarp to be initialized "
+                "in T2 or T3 mode."
+            )
 
-            self.tryfunc(hhlib.HH_ReadFiFo(ct.c_int(self.dev[0]), byref(self.buffer), self.TTREADMAX,\
-                            byref(self.nRecords)),\
-        "ReadFiFo", measRunning=True)
+        tacq = int(tacq)
+        if tacq <= 0:
+            raise ValueError("Acquisition time must be greater than zero.")
 
-            if self.nRecords.value > 0:
-                # We could just iterate through our buffer with a for loop, however,
-                # this is slow and might cause a FIFO overrun. So instead, we shrinken
-                # the buffer to its appropriate length with array slicing, which gives
-                # us a python list. This list then needs to be converted back into
-                # a ctype array which can be written at once to the output file
-                outputfile.write((ct.c_uint*self.nRecords.value)(*self.buffer[0:self.nRecords.value]))
-                progress += self.nRecords.value
-                sys.stdout.write("\rProgress:%9u" % progress)
-                sys.stdout.flush()
-            else:
-                self.tryfunc(hhlib.HH_CTCStatus(ct.c_int(self.dev[0]), byref(self.ctcstatus)),\
-                        "CTCStatus")
-                if self.ctcstatus.value > 0: 
-                    print("\nDone")
-                    self.stoptttr() 
-                        
+        total_records = 0
+        fifo_overrun = False
+        self.ctcstatus.value = 0
 
-        self.closeDevices()
-        outputfile.close()
-    
-    def stoptttr(self):
-        retcode = hhlib.HH_StopMeas(ct.c_int(self.dev[0]))
-        if retcode < 0:
-            print("HH_StopMeas error %1d. Aborted." % retcode)
-            self.closeDevices()
+        with open(filename, "wb") as output_file:
+            self.tryfunc(
+                hhlib.HH_StartMeas(
+                    ct.c_int(self.dev[0]),
+                    ct.c_int(tacq),
+                ),
+                "StartMeas",
+            )
+
+            try:
+                while True:
+                    # User requested cancellation.
+                    if stop_event is not None and stop_event.is_set():
+                        break
+
+                    self.tryfunc(
+                        hhlib.HH_GetFlags(
+                            ct.c_int(self.dev[0]),
+                            byref(self.flags),
+                        ),
+                        "GetFlags",
+                        measRunning=True,
+                    )
+
+                    if self.flags.value & self.FLAG_FIFOFULL:
+                        fifo_overrun = True
+                        raise RuntimeError(
+                            "HydraHarp FIFO overrun. The TTTR measurement "
+                            "may be incomplete."
+                        )
+
+                    self.tryfunc(
+                        hhlib.HH_ReadFiFo(
+                            ct.c_int(self.dev[0]),
+                            byref(self.buffer),
+                            ct.c_int(self.TTREADMAX),
+                            byref(self.nRecords),
+                        ),
+                        "ReadFiFo",
+                        measRunning=True,
+                    )
+
+                    record_count = self.nRecords.value
+
+                    if record_count > 0:
+                        byte_count = record_count * ct.sizeof(ct.c_uint)
+
+                        # Write the ctypes buffer directly as bytes.
+                        # This avoids converting it to a Python list and then
+                        # reconstructing another ctypes array.
+                        output_file.write(
+                            ct.string_at(
+                                ct.addressof(self.buffer),
+                                byte_count,
+                            )
+                        )
+
+                        total_records += record_count
+
+                        if progress_callback is not None:
+                            progress_callback(total_records)
+
+                        continue
+
+                    # No records were returned, so check whether the timed
+                    # measurement has finished.
+                    self.tryfunc(
+                        hhlib.HH_CTCStatus(
+                            ct.c_int(self.dev[0]),
+                            byref(self.ctcstatus),
+                        ),
+                        "CTCStatus",
+                        measRunning=True,
+                    )
+
+                    if self.ctcstatus.value > 0:
+                        break
+
+            finally:
+                # Stop this measurement, but do not disconnect the detector.
+                retcode = hhlib.HH_StopMeas(ct.c_int(self.dev[0]))
+
+                if retcode < 0:
+                    hhlib.HH_GetErrorString(
+                        self.errorString,
+                        ct.c_int(retcode),
+                    )
+                    raise RuntimeError(
+                        "HH_StopMeas failed: "
+                        f"{self.errorString.value.decode('utf-8')}"
+                    )
+
+        return {
+            "filename": str(filename),
+            "mode": self.mode,
+            "records": total_records,
+            "cancelled": (
+                stop_event is not None and stop_event.is_set()
+            ),
+            "fifo_overrun": fifo_overrun,
+        }
+
+
+    def t2_meas(
+        self,
+        filename,
+        tacq=1000,
+        stop_event=None,
+        progress_callback=None,
+    ):
+        if self.mode != self.MODE_T2:
+            raise RuntimeError(
+                "HydraHarp is not initialized in T2 mode."
+            )
+
+        return self.run_tttr_measure(
+            filename=filename,
+            tacq=tacq,
+            stop_event=stop_event,
+            progress_callback=progress_callback,
+        )
+
+
+    def t3_meas(
+        self,
+        filename,
+        tacq=1000,
+        stop_event=None,
+        progress_callback=None,
+    ):
+        if self.mode != self.MODE_T3:
+            raise RuntimeError(
+                "HydraHarp is not initialized in T3 mode."
+            )
+
+        return self.run_tttr_measure(
+            filename=filename,
+            tacq=tacq,
+            stop_event=stop_event,
+            progress_callback=progress_callback,
+        )
 
 
     def __enter__(self):

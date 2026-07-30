@@ -1,6 +1,6 @@
 import threading
 
-import spm_control.config as config
+import spm_control.core_config as core_config
 from spm_control.hardware.hydraharp import HydraHarpDetector
 
 
@@ -20,8 +20,8 @@ class HardwareManager:
             if self.detector is not None:
                 return self.detector
 
-            hydraharp_settings = config.load_named_settings("hydraharp", config.HARDWARE_CONFIG)
-            sync_settings = config.load_named_settings("sync", config.HARDWARE_CONFIG)
+            hydraharp_settings = core_config.load_named_settings("hydraharp", core_config.HARDWARE_CONFIG)
+            sync_settings = core_config.load_named_settings("sync", core_config.HARDWARE_CONFIG)
 
             detector = HydraHarpDetector(hydraharp_settings, sync_settings)
             detector.connect()

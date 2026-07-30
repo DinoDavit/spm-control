@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-import spm_control.config as config
+import spm_control.core_config as core_config
 from spm_control.scan import scan_plot_and_analysis as spa
 from spm_control.hardware.piezo_stage import PIStage
 from spm_control.scan.raster import run_raster_scan
@@ -80,7 +80,7 @@ class RasterManager:
         if self.is_running():
             raise RuntimeError("A raster scan is already running.")
 
-        scan_settings = config.load_named_settings("scan", config.SCAN_CONFIG)
+        scan_settings = core_config.load_named_settings("scan", core_config.SCAN_CONFIG)
 
         x_min = scan_settings["x_min"]
         x_max = scan_settings["x_max"]
@@ -197,7 +197,7 @@ class RasterManager:
         try:
             self.active_data["status"] = "connecting"
 
-            stage_settings = config.load_named_settings("stage", config.HARDWARE_CONFIG)
+            stage_settings = core_config.load_named_settings("stage", core_config.HARDWARE_CONFIG)
 
             stage = PIStage(
                 stage_settings["CONTROLLER_NAME"],
@@ -266,18 +266,18 @@ class RasterManager:
         if self.is_running():
             raise RuntimeError("Cannot move the piezo while a raster scan is running.")
 
-        move_settings = config.load_named_settings(
+        move_settings = core_config.load_named_settings(
             "move",
-            config.SCAN_CONFIG
+            core_config.SCAN_CONFIG
         )
 
         x = float(move_settings["x"])
         y = float(move_settings["y"])
         z = float(move_settings["z"])
 
-        stage_settings = config.load_named_settings(
+        stage_settings = core_config.load_named_settings(
             "stage",
-            config.HARDWARE_CONFIG
+            core_config.HARDWARE_CONFIG
         )
 
         stage = PIStage(

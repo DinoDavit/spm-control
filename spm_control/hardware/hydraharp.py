@@ -11,7 +11,7 @@ class HydraHarpDetector:
         if self.manager is not None:
             return
 
-        mode_name = self.hydraharp_settings.get("default_mode", "hist").lower()
+        mode_name = self.hydraharp_settings.get("mode",self.hydraharp_settings.get("default_mode", "hist")).lower()
         mode_map = {"hist": 0, "t2": 2, "t3": 3}
 
         if mode_name not in mode_map:
@@ -48,6 +48,31 @@ class HydraHarpDetector:
             self.manager.closeDevices()
             self.manager = None
 
+        self.mode_name = None
+
     def _require_connection(self):
         if self.manager is None:
             raise RuntimeError("HydraHarp is not connected.")
+
+    def acquire_tttr(self, output_path, acquisition_ms, stop_event=None, progress_callback=None,):
+        self._require_connection()
+
+        if self.mode_name == "t2":
+            return self.manager.t2_meas(
+                filename=output_path,
+                tacq=int(acquisition_ms),
+                stop_event=stop_event,
+                progress_callback=progress_callback,
+            )
+
+        if self.mode_name == "t3":
+            return self.manager.t3_meas(
+                filename=output_path,
+                tacq=int(acquisition_ms),
+                stop_event=stop_event,
+                progress_callback=progress_callback,
+            )
+
+        raise RuntimeError(
+            "TTTR acquisition requires T2 or T3 mode."
+        )

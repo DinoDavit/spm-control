@@ -32,6 +32,7 @@ class Scan_Page():
         p.entries = {}
         # Storing them in dictionary to later access them all in yaml file under same name
         Scan_Config = Path(__file__).resolve().parents[3] / "config_files" / "scan.yaml"
+        Hardware_Config = Path(__file__).resolve().parents[3] / "config_files" / "hardware.yaml"
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate = False
@@ -56,7 +57,22 @@ class Scan_Page():
 
         self.raster_manager = RasterManager(self.app, self.app.hardware_manager, time_manager=self.app.time_manager)
         p.RunFrame = page_helpers.createFrame(p, "third_row", [0.2, 0.9, 0.25, 0.05])
-        p.Run = page_helpers.createButton(p.RunFrame, "Run", 5, lambda: config.update(p.entries, "scan", Scan_Config, nextCall=self.start_scan))
+        p.Run = page_helpers.createButton(
+            p.RunFrame,
+            "Run",
+            5,
+            lambda: config.update(
+                p.entries,
+                "scan",
+                Scan_Config,
+                nextCall=lambda: config.update_selection(
+                    {"default_mode": "hist"},
+                    "hydraharp",
+                    Hardware_Config,
+                    nextCall=self.start_scan
+                )
+            )
+        )
 
         p.StopFrame = page_helpers.createFrame(p, "third_row", [0.5, 0.9, 0.25, 0.05])
         confirm_msg = "Please confirm you want to stop the scan, data will not be saved!"

@@ -4,11 +4,11 @@ from matplotlib.figure import Figure
 from matplotlib import cm
 
 from spm_control.work_in_progress_legacy_scripts import scan_plot_and_analysis as spa
-import spm_control.config as config
+import spm_control.core_config as core_config
 
 
 def create_filtered_scan_plot(file_path, channel):
-    scan_settings = config.load_named_settings("scan", config.SCAN_CONFIG)
+    scan_settings = core_config.load_named_settings("scan", core_config.SCAN_CONFIG)
 
     intensity_min = scan_settings["intensity_min"]
     intensity_max = scan_settings["intensity_max"]

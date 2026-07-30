@@ -482,7 +482,7 @@ def confirmation(msg, T = "Confirm",nextCall = None):
         nextCall()
     else:
         return
-    
+
 def createSelection(
     parent,
     texts,

@@ -1,12 +1,12 @@
 import time
 import numpy as np
 
-import spm_control.config as config
+import spm_control.core_config as core_config
 
 
 def run_raster_scan(stage, detector, stop_event, output_path, progress_callback=None):
-    scan = config.load_named_settings("scan", config.SCAN_CONFIG)
-    motion = config.load_named_settings("piezo_scan_motion", config.HARDWARE_CONFIG)
+    scan = core_config.load_named_settings("scan", core_config.SCAN_CONFIG)
+    motion = core_config.load_named_settings("piezo_scan_motion", core_config.HARDWARE_CONFIG)
 
     x_min, x_max = scan["x_min"], scan["x_max"]
     y_min, y_max = scan["y_min"], scan["y_max"]
