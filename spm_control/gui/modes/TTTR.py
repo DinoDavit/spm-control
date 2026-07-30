@@ -139,6 +139,15 @@ class TTTR_Page:
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
         p.entries = {}
 
+        p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
+        p.title_frame.pack_propagate(False)
+        p.title = page_helpers.createLabel(p.title_frame, "TTTR Plotting Menu", sz=24, side="top", y_space=(4, 4))
+
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.7, 0.05])
+        p.entries["acquisition_time"] = page_helpers.createSingleEntry(p.first_row, "Acquisition Time (s)", numbered_entry=True, placeholder="e.g. 1200")
+        page_helpers.bind_entry(p.entries["acquisition_time"], min_val=0.001, max_val=36000)
+    
+
     def build_mode_ops(self):
         options_loadout = {"select_point": self.OpenTTTRMenu, "g2_plot": self.OpenPlotterMenu}
         page_helpers.createToolbar(self.mode_options, options_loadout, 0.08)
