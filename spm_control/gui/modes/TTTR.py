@@ -6,6 +6,7 @@ from spm_control.gui.modes.point_selector import PointSelector
 from spm_control.managers.TTTR_manager import TTTRManager
 from spm_control.managers.raster_manager import RasterManager
 
+
 import spm_control.core_config as core_config
 
 
@@ -137,15 +138,17 @@ class TTTR_Page:
 
     def OpenPlotterMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
-        p.entries = {}
+        p.checkboxes = {}
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate(False)
         p.title = page_helpers.createLabel(p.title_frame, "TTTR Plotting Menu", sz=24, side="top", y_space=(4, 4))
 
-        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.7, 0.05])
-        p.entries["acquisition_time"] = page_helpers.createSingleEntry(p.first_row, "Acquisition Time (s)", numbered_entry=True, placeholder="e.g. 1200")
-        page_helpers.bind_entry(p.entries["acquisition_time"], min_val=0.001, max_val=36000)
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.4, 0.05])
+        p.checkboxes["CSV"] = page_helpers.createCheckbox(p.first_row, "Create CSV", lambda: print("HELLO WORLD"))
+
+        p.first_row = page_helpers.createFrame(p, "first_row", [0.1, 0.12, 0.4, 0.05])
+        p.checkboxes["CSV"] = page_helpers.createCheckbox(p.first_row, "Create CSV File", lambda: print("HELLO WORLD"))
     
 
     def build_mode_ops(self):
