@@ -436,3 +436,28 @@ class HH400_Histo_Manager:
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
         self.closeDevices()
         return None
+
+    def get_rates(self):
+        self.tryfunc(
+            hhlib.HH_GetSyncRate(
+                ct.c_int(self.dev[0]),
+                byref(self.syncRate)
+            ),
+            "GetSyncRate"
+        )
+
+        count_rates = []
+
+        for channel in range(self.numChannels.value):
+            self.tryfunc(
+                hhlib.HH_GetCountRate(
+                    ct.c_int(self.dev[0]),
+                    ct.c_int(channel),
+                    byref(self.countRate)
+                ),
+                "GetCountRate"
+            )
+
+            count_rates.append(self.countRate.value)
+
+        return self.syncRate.value, count_rates

@@ -27,6 +27,7 @@ class TTTR_Page:
         page_helpers.load_required_panels(self, self.panels, required_panels)
 
         self.point_selector = None
+        self.entries = {}
 
         self.OpenTTTRMenu()
         self.build_mode_ops()
@@ -73,17 +74,8 @@ class TTTR_Page:
             return
 
         try:
-            acquisition_entry = self.parameter_panel.entries["acquisition_time"].get()
-
-            if not acquisition_entry:
-                raise ValueError("Please enter an acquisition time.")
-
-            acquisition_s = float(acquisition_entry)
-
-            if acquisition_s <= 0:
-                raise ValueError("Acquisition time must be greater than zero.")
-
-            self.tttr_manager.start(acquisition_ms=int(acquisition_s * 1000))
+            config.update(self.entries, "tttr", self.Scan_Config, emptyOk=True)
+            self.tttr_manager.start()
 
         except Exception as error:
             page_helpers.throwError(str(error))
@@ -96,17 +88,21 @@ class TTTR_Page:
 
     def mode_changed(self, mode):
         if mode == "T3":
-            self.parameter_panel.t3_options.place(relx=0.1, rely=0.28, relwidth=0.6, relheight=0.08)
+            for frame in self.parameter_panel.t3_frames:
+                frame.place()
+
             selected_mode = "t3"
         else:
-            self.parameter_panel.t3_options.place_forget()
+            for frame in self.parameter_panel.t3_frames:
+                frame.place_forget()
+
             selected_mode = "t2"
 
         config.update_selection({"default_mode": selected_mode}, "hydraharp", self.Hardware_Config)
 
     def OpenTTTRMenu(self):
         p = page_helpers.reload_panel(self.panels, MAIN_LAYOUT, "option_parameters")
-        p.entries = {}
+        p.entries = self.entries
 
         p.title_frame = page_helpers.createFrame(p, "title_frame", [0, 0, 1, 0.1], outline=True)
         p.title_frame.pack_propagate(False)
@@ -119,11 +115,42 @@ class TTTR_Page:
         p.second_row = page_helpers.createFrame(p, "second_row", [0.1, 0.2, 0.5, 0.08])
         p.mode = page_helpers.createSelection(p.second_row, ["T2", "T3"], default="T2", command=self.mode_changed, spacing=6)
 
-        p.t3_options = page_helpers.createFrame(p, "t3_options", [0.1, 0.32, 0.6, 0.08])
-        p.entries["binning"] = page_helpers.createSingleEntry(p.t3_options, "Binning", numbered_entry=True, placeholder="e.g. 4")
-        page_helpers.bind_entry(p.entries["binning"], min_val=0, max_val=16)
-        p.t3_options.place_forget()
+        p.sixth_row = page_helpers.createFrame(p, "sixth_row", [0.1, 0.28, 0.5, 0.06])
+        p.entries["delay_min"] = page_helpers.createSingleEntry(p.sixth_row, "Delay Min (ps)", numbered_entry=True, placeholder="-1e5")
 
+        p.seventh_row = page_helpers.createFrame(p, "seventh_row", [0.1, 0.34, 0.6, 0.06])
+        p.entries["bin_width"] = page_helpers.createSingleEntry(p.seventh_row, "Time Bin Width (ps)", numbered_entry=True, placeholder="100")
+
+        p.eighth_row = page_helpers.createFrame(p, "eighth_row", [0.1, 0.4, 0.5, 0.06])
+        p.entries["delay_max"] = page_helpers.createSingleEntry(p.eighth_row, "Delay Max (ps)", numbered_entry=True, placeholder="1e5")
+
+
+        p.t3_frames = []
+
+        p.t3_options = page_helpers.createFrame(p, "t3_options", [0.1, 0.52, 0.6, 0.08])
+        p.entries["pulse_delay_min"] = page_helpers.createSingleEntry(p.t3_options, "Pulse Delay Min", numbered_entry=True, placeholder="-1.5")
+        p.t3_frames.append(p.t3_options)
+
+        p.t3_options_2 = page_helpers.createFrame(p, "t3_options_2", [0.1, 0.6, 0.6, 0.08])
+        p.entries["pulse_bin_width"] = page_helpers.createSingleEntry(p.t3_options_2, "Pulse Bin Width", numbered_entry=True, placeholder="0.3")
+        p.t3_frames.append(p.t3_options_2)
+
+        p.t3_options_3 = page_helpers.createFrame(p, "t3_options_3", [0.1, 0.68, 0.6, 0.08])
+        p.entries["pulse_delay_max"] = page_helpers.createSingleEntry(p.t3_options_3, "Pulse Delay Max", numbered_entry=True, placeholder="1.5")
+        p.t3_frames.append(p.t3_options_3)
+
+
+        page_helpers.bind_entry(p.entries["delay_min"], nextE=p.entries["bin_width"], min_val=-1000000, max_val=1000000, ranged=True)
+        page_helpers.bind_entry(p.entries["bin_width"], nextE=p.entries["delay_max"], min_val=0.001, max_val=1000000, ranged=True)
+        page_helpers.bind_entry(p.entries["delay_max"], nextE=p.entries["pulse_delay_min"], min_val=-1000000, max_val=1000000, ranged=True)
+
+        page_helpers.bind_entry(p.entries["pulse_delay_min"], nextE=p.entries["pulse_bin_width"], min_val=-1000, max_val=1000, ranged=True)
+        page_helpers.bind_entry(p.entries["pulse_bin_width"], nextE=p.entries["pulse_delay_max"], min_val=0.001, max_val=1000, ranged=True)
+        page_helpers.bind_entry(p.entries["pulse_delay_max"], min_val=-1000, max_val=1000, ranged=True)
+
+
+        for frame in p.t3_frames:
+            frame.place_forget()
         p.third_row = page_helpers.createFrame(p, "third_row", [0.0625, 0.9, 0.25, 0.05])
         p.select_point = page_helpers.createButton(p.third_row, "Select Point", 5, self.begin_point_selection)
 

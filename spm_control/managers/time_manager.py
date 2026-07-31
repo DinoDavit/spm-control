@@ -36,7 +36,10 @@ class TimeManager:
         self.publish_time(remaining)
 
     def update_known_duration(self, remaining_seconds):
-        self.publish_time(max(0, remaining_seconds))
+        if self.start_time is None:
+            return
+
+        self.publish_time(remaining_seconds)
 
     def finish(self):
         self.publish_time(0)
@@ -49,6 +52,7 @@ class TimeManager:
         self.reset_state()
 
     def error(self):
+        self.publish_time(None)
         self.publish_status("error")
         self.reset_state()
 
@@ -58,8 +62,6 @@ class TimeManager:
         self.completed_units = 0
 
     def publish_time(self, seconds):
-        print("Publishing time:", seconds, "callback:", self.update_callback)
-
         if self.update_callback is not None:
             self.gui_root.after(0, self.update_callback, seconds)
 
