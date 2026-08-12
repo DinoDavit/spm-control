@@ -8,11 +8,19 @@ from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 
+
+
+# NOTE MOST IF NOT ALL THESE WIDGETS EITHER SCALE TO PARENT FRAME OR FILL UP FRAME ENTIRELY
+# SMALLER WIDGETS LIKE BUTTONS AND TEXT ESPECIALLY FILL UP FRAME
+
 def getDimensions(parent):
     return parent.winfo_screenwidth(), parent.winfo_screenheight()
+    # Gets the dimensions
 
 def createPanels(parent, layout):
-    # Getting name from layout and creating corresponding frames
+    """
+    Looks at the name and dimensions in the layout file and creates panels accordingly
+    """
     panels = {}
     for name, dims in layout.items():
         panels[name] = create_panel(parent, name, dims)
@@ -20,6 +28,9 @@ def createPanels(parent, layout):
 
 
 def create_panel(parent, name, dims):
+    """
+    Creating frame panel with relative dimensional coordinates to parent
+    """
     x, y, w, h = dims
 
     panel = ctk.CTkFrame(
@@ -40,6 +51,9 @@ def create_panel(parent, name, dims):
 
 
 def reload_panel(panels, layout, panel_name):
+    """
+    Destroys the panel and recreates the panel
+    """
     old_panel = panels[panel_name]
     parent = old_panel.master
     old_panel.destroy()
@@ -62,6 +76,9 @@ def reload_panels(panels, layout, panel_names, notMain = False):
     return panels
 
 def load_required_panels(page, panels, required_panels):
+    """
+    Loads the required panels out of provided panels onto the page
+    """
     page.panels = panels
     
     for name in required_panels: 
@@ -71,6 +88,9 @@ def load_required_panels(page, panels, required_panels):
         setattr(page, name, panels[name])
 
 def createFrame(parent, name, dimensions, outline = False):
+    """
+    Creates frame within parent frame (typically panel), with relative diemnsions and name
+    """
     debug = False
     if not hasattr(parent, "frames"):
         parent.frames = {}
@@ -104,6 +124,11 @@ def createFrame(parent, name, dimensions, outline = False):
     return frame
 
 def createToolbar(parent, loadout, button_size, horizontal=True):
+    """
+    Creates a toolbar of buttons of specified size horizontally or vertically,
+    with png names as keys that also refer to assets folder and commands within
+    the dictionary loadouts 
+    """
     parent.options = {}
     assets = Path(__file__).resolve().parent.parent / "assets"
 
@@ -132,6 +157,7 @@ def createToolbar(parent, loadout, button_size, horizontal=True):
         }
 
 def createButton(parent, name, cRad, func, color=None, hcolor=None):
+    """Creates a regular text button that executes some function when clicked"""
     kwargs = {}
 
     if color is not None:
@@ -153,6 +179,7 @@ def createButton(parent, name, cRad, func, color=None, hcolor=None):
 
 
 def createButtonDisplay(parent, PNG, func):
+    """Creates a button display with an image"""
     raw_image = Image.open(PNG).convert("RGBA")
 
     my_button = ctk.CTkButton(
@@ -198,6 +225,10 @@ def createCheckbox(
     font_size=18,
     padx=10
 ):
+    """Creates a checkbox with a label and a command that can be executed
+    at a later time, because the command is stored as a custom variable
+    within the checkbox object"""
+
     variable = ctk.BooleanVar(value=default)
 
     label = ctk.CTkLabel(
@@ -231,6 +262,9 @@ def createCheckbox(
     return checkbox
 
 def createRangeInput(parent, name, placeholder_min="min", placeholder_max="max"):
+    """Creates a ranged input with a label and two entry fields for min and max values
+    with validation to check of a typed character is a valid numerical entry"""
+    # Could maybe use createSingleEntry call
     name = name.rstrip(":")
     vcmd = (parent.register(check.validate_numeric_typing), "%P", name)
 
@@ -287,6 +321,10 @@ def createSingleEntry(
     multi = 0,
     numbered_entry = True,
 ):
+    # Config_key might be unecessary?
+    """Creates a single entry field with optional parameters like:
+    a minimum and maximum value, a configuration key, and ensuring
+    that an entry is rounded to a valid multiple"""
     name = name.rstrip(":")
     config_key = config_key or name
 
@@ -333,6 +371,7 @@ def createLabel(
     pack=True,
     **kwargs
 ):
+    """Creates a label"""
     label = ctk.CTkLabel(
         parent,
         text=text,
@@ -359,6 +398,11 @@ def bind_entry(
     ranged=False,
     emptyOk=False
 ):
+    """
+    Binds entry ensuring minimum value and maximum value are correct
+    Also checks for multiples, and if something is ranged or allowed to be empty.
+    It can focus onto the next entry box (if) provided when enter key is pressed
+    """
     if min_val is not None or max_val is not None:
         entry.bind(
             "<FocusOut>",
@@ -401,6 +445,10 @@ def bind_entry(
         )
 
 def get_file(file_display):
+    """
+    Gets the file display path
+    which is useful for other pages
+    """
     return file_display.get_path()
 
 def throwError(message):
@@ -471,6 +519,9 @@ def createDisplayEntry(parent, name, value="0", label_width=80, entry_width=145,
 
 
 def display_figure(main_display, figure):
+    """
+    Displays a Matplotlib figure at the main display
+    """
     # Embeds a mpl figure into a canvas on a mini display (meant for main_display)
     for widget in main_display.winfo_children():
         widget.destroy()
@@ -500,6 +551,10 @@ def display_figure(main_display, figure):
     main_display.mini_display = mini_display
 
 def confirmation(msg, T = "Confirm",nextCall = None):
+    """
+    Gives a confirmation popup with confirmation and a msg,
+    if confirmed next call executes
+    """
     confirmed = messagebox.askyesno(title=T, message=msg)
 
     if confirmed and nextCall is not None:
@@ -516,6 +571,9 @@ def createSelection(
     edge_padding=12,
     bg_color="#2b2b2b"
 ):
+    """
+    Creates a selection of two options, and command executes
+    """
     if not texts:
         raise ValueError("texts must contain at least one option")
 
