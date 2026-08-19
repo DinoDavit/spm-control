@@ -1,7 +1,7 @@
 from pathlib import Path
 import csv
 import subprocess
-
+import math
 import numpy as np
 
 
@@ -78,7 +78,6 @@ def decode_t2_to_csv(
 
     return output_file
 
-
 def run_t2_correlation(
     input_file: str | Path,
     output_file: str | Path,
@@ -91,19 +90,35 @@ def run_t2_correlation(
     input_cygwin = windows_to_cygwin_path(input_file, cygwin_bash)
     output_cygwin = windows_to_cygwin_path(output_file, cygwin_bash)
 
+    delay_range_ps = delay_max_ps - delay_min_ps
+
+    if delay_range_ps <= 0:
+        raise ValueError("Delay maximum must be greater than delay minimum.")
+
+    if bin_width_ps <= 0:
+        raise ValueError("Bin width must be greater than zero.")
+
+    number_of_bins = math.ceil(delay_range_ps / bin_width_ps)
+
     command = (
-        f"cat {shell_quote(input_cygwin)} | "
         f"{shell_quote(photon_gn)} "
+        f"--file-in {shell_quote(input_cygwin)} "
         f"--mode t2 "
         f"--channels 2 "
         f"--order 2 "
-        f"--time {int(delay_min_ps)},{int(bin_width_ps)},{int(delay_max_ps)} "
+        f"--time={int(delay_min_ps)},{number_of_bins},{int(delay_max_ps)} "
         f"--file-out {shell_quote(output_cygwin)}"
+    )
+
+    print(f"Running: {command}")
+    print(
+        f"T2 correlation: {number_of_bins} bins, "
+        f"approximately {delay_range_ps / number_of_bins:g} ps/bin"
     )
 
     return subprocess.run(
         [str(cygwin_bash), "-lc", command],
         capture_output=True,
         text=True,
-        check=True,
+        check=True
     )

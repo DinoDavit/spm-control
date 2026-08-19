@@ -445,6 +445,13 @@ class HH400_Histo_Manager:
             ),
             "GetSyncRate"
         )
+        print("\nSyncrate=%1d/s" % self.syncRate.value)
+
+        if self.mode == self.MODE_T2 and self.syncRate.value > 100:
+            raise RuntimeError(
+                "T2 g2 measurement blocked: sync input is active at "
+                f"{self.syncRate.value:,} counts/s. Disconnect the sync cable."
+            )
 
         count_rates = []
 

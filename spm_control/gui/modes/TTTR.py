@@ -119,7 +119,7 @@ class TTTR_Page:
         p.entries["delay_min"] = page_helpers.createSingleEntry(p.sixth_row, "Delay Min (ps)", numbered_entry=True, placeholder="-1e5")
 
         p.seventh_row = page_helpers.createFrame(p, "seventh_row", [0.1, 0.34, 0.6, 0.06])
-        p.entries["bin_width"] = page_helpers.createSingleEntry(p.seventh_row, "Time Bin Width (ps)", numbered_entry=True, placeholder="100")
+        p.entries["num_bins"] = page_helpers.createSingleEntry(p.seventh_row, "Number of Bins", numbered_entry=True, placeholder="100")
 
         p.eighth_row = page_helpers.createFrame(p, "eighth_row", [0.1, 0.4, 0.5, 0.06])
         p.entries["delay_max"] = page_helpers.createSingleEntry(p.eighth_row, "Delay Max (ps)", numbered_entry=True, placeholder="1e5")
@@ -132,7 +132,7 @@ class TTTR_Page:
         p.t3_frames.append(p.t3_options)
 
         p.t3_options_2 = page_helpers.createFrame(p, "t3_options_2", [0.1, 0.6, 0.6, 0.08])
-        p.entries["pulse_bin_width"] = page_helpers.createSingleEntry(p.t3_options_2, "Pulse Bin Width", numbered_entry=True, placeholder="0.3")
+        p.entries["pulse_num_bins"] = page_helpers.createSingleEntry(p.t3_options_2, "Number of Bins", numbered_entry=True, placeholder="0.3")
         p.t3_frames.append(p.t3_options_2)
 
         p.t3_options_3 = page_helpers.createFrame(p, "t3_options_3", [0.1, 0.68, 0.6, 0.08])
@@ -140,12 +140,12 @@ class TTTR_Page:
         p.t3_frames.append(p.t3_options_3)
 
 
-        page_helpers.bind_entry(p.entries["delay_min"], nextE=p.entries["bin_width"], min_val=-1000000, max_val=1000000, ranged=True)
-        page_helpers.bind_entry(p.entries["bin_width"], nextE=p.entries["delay_max"], min_val=0.001, max_val=1000000, ranged=True)
+        page_helpers.bind_entry(p.entries["delay_min"], nextE=p.entries["num_bins"], min_val=-1000000, max_val=1000000, ranged=True)
+        page_helpers.bind_entry(p.entries["num_bins"], nextE=p.entries["delay_max"], min_val=0.001, max_val=1000000, ranged=True)
         page_helpers.bind_entry(p.entries["delay_max"], nextE=p.entries["pulse_delay_min"], min_val=-1000000, max_val=1000000, ranged=True)
 
-        page_helpers.bind_entry(p.entries["pulse_delay_min"], nextE=p.entries["pulse_bin_width"], min_val=-1000, max_val=1000, ranged=True)
-        page_helpers.bind_entry(p.entries["pulse_bin_width"], nextE=p.entries["pulse_delay_max"], min_val=0.001, max_val=1000, ranged=True)
+        page_helpers.bind_entry(p.entries["pulse_delay_min"], nextE=p.entries["pulse_num_bins"], min_val=-1000, max_val=1000, ranged=True)
+        page_helpers.bind_entry(p.entries["pulse_num_bins"], nextE=p.entries["pulse_delay_max"], min_val=0.001, max_val=1000, ranged=True)
         page_helpers.bind_entry(p.entries["pulse_delay_max"], min_val=-1000, max_val=1000, ranged=True)
 
 
